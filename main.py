@@ -51,18 +51,65 @@ THEME = {
     "bg_over": "#FFFBEB",      "bg_risk": "#FEF2F2"
 }
 
+import platform
+
+# --- 字体配置逻辑 ---
+def get_font_stack():
+    """根据操作系统选择最佳字体栈"""
+    system = platform.system()
+    
+    # 1. 优先尝试现代 UI 字体
+    # 如果你安装了 Inter，这里会优先使用。否则回退到系统默认。
+    if system == "Windows":
+        ui_family = "Microsoft YaHei UI" # 包含中文的更安全选择，或者 "Segoe UI"
+        # 如果你想强制尝试 Inter (需用户安装): 
+        # ui_family = "Inter" 
+        mono_family = "Consolas"
+    elif system == "Darwin": # macOS
+        ui_family = ".AppleSystemUIFont" # San Francisco
+        mono_family = "Menlo"
+    else: # Linux
+        ui_family = "DejaVu Sans"
+        mono_family = "DejaVu Sans Mono"
+        
+    return ui_family, mono_family
+
+UI_FONT, MONO_FONT = get_font_stack()
+
+# 更加细腻的字体层级定义
 FONTS = {
-    "h1": ("Segoe UI", 26, "bold"),       
-    "h2": ("Segoe UI", 18, "bold"),       
-    "h3": ("Segoe UI", 14, "bold"),       
-    "body": ("Segoe UI", 13),             
-    "body_bold": ("Segoe UI", 13, "bold"), 
-    "sub": ("Segoe UI", 11),
-    "sub_bold": ("Segoe UI", 11, "bold"),              
-    "mono": ("Consolas", 12),          
-    "hero": ("Segoe UI", 48, "bold"),  
-    "card_val": ("Segoe UI", 24, "bold"),
-    "tag": ("Segoe UI", 10, "bold")
+    # 核心数字展示 (如账户总值) - 大、粗、醒目
+    "hero": (UI_FONT, 40, "bold"),
+    
+    # 一级标题 (如页面标题)
+    "h1": (UI_FONT, 24, "bold"),
+    
+    # 二级标题 (如卡片标题)
+    "h2": (UI_FONT, 16, "bold"),
+    
+    # 三级标题 (如分组名)
+    "h3": (UI_FONT, 14, "bold"),
+    
+    # 正文 (列表内容) - 稍微调小字号增加精致感
+    "body": (UI_FONT, 12),
+    
+    # 正文强调 (代码列)
+    "body_bold": (UI_FONT, 12, "bold"),
+    
+    # 辅助信息 (名称、次要标签) - 使用更小的字号和灰色
+    "sub": (UI_FONT, 11),
+    
+    # 辅助强调 (表头)
+    "sub_bold": (UI_FONT, 11, "bold"),
+    
+    # 标签/胶囊文字 (极小，精细)
+    "tag": (UI_FONT, 10, "bold"),
+    
+    # 等宽数据 (日志、对齐的表格数据)
+    "mono": (MONO_FONT, 10),
+    
+    # 卡片数值 (盈亏数字)
+    "card_val": (UI_FONT, 20, "bold")
 }
 
 # 货币符号映射
@@ -76,7 +123,7 @@ CURRENCY_SYMBOLS = {
 # ==========================================
 LANG = {
     "CN": {
-        "app_title": "StockSifu 股师傅 Pro",
+        "app_title": "Build Your Wealth",
         "nav_dcf": "估值计算",
         "nav_port": "资产管理",
         
@@ -86,19 +133,20 @@ LANG = {
         
         "btn_calc": "开始计算",
         "btn_save_wl": "保存快照",
+        "btn_new_val": "＋ 新建", # 新增
         
         "grp_basic": "基础信息",
         "grp_fin": "财务数据 (百万元)",
-        "grp_growth": "增长率假设 (%)",
-        "grp_more": "折现与汇率",
+        "grp_growth": "增长与折现 (%)",
+        "grp_more": "汇率",
         
-        "name": "名称", "symbol": "代码", "method": "模型", 
+        "name": "名称", "symbol": "股票代码", "method": "估值模型", 
         "cf_val": "现金流", "debt": "负债", "cash": "现金", "shares": "股本 (百万)",
         "g1": "1-5年增长", "g2": "6-10年增长", "g3": "11-20年增长", "dr": "折现率 (%)",
         "fin_curr": "财报货币", "list_curr": "上市交易货币", "rate": "汇率", "close": "最新价",
-        "rate_hint": "即: 1 {0} = ? {1}", 
+        "rate_hint": "即: 1 {0} = {2} {1}", 
         "iv_lbl": "每股内在价值", "mos_lbl": "溢价率 (Price vs IV)",
-        "val_date": "估值基准 (年/月)", 
+        "val_date": "估值更新于 (年/月)", 
         
         "r_v_und": "💎 非常低估", "r_und": "✅ 低估", "r_fair": "⚖️ 合理",
         "r_over": "⚠️ 高估", "r_v_over": "⛔️ 非常高估",
@@ -132,11 +180,18 @@ LANG = {
         "msg_updating": "正在同步全球行情...",
         "msg_updated": "更新完成！",
         "err_no_yf": "未安装 yfinance 库",
+        "err_input_missing": "请填写所有必要参数。",
+        "err_input_invalid": "请输入有效的数字。",
+        "err_cf_missing": "请输入现金流数据。",
         
         "settings": "设置",
         "lang_sel": "语言选择",
         "restart_msg": "语言已更改，请重启应用以生效。",
         "save_btn": "保存并关闭",
+        # --- 新增反馈提示语 ---
+        "msg_calc_done": "计算完成 ✅",
+        "msg_save_done": "已保存到关注列表 💾",
+        "msg_new_ready": "已重置，准备新建 ✨",
         
         # --- 新增: 排序与分组 ---
         "sort_lbl": "排序:",
@@ -146,16 +201,16 @@ LANG = {
         "other_group": "其他",
 
         "methods": {
-            "经营现金流折现 (DCF)": "经营现金流 (OCF)",
-            "净利润折现 (DNI)": "净利润 (Net Income)",
-            "自由现金流折现 (DFCF)": "自由现金流 (FCF)"
+            "经营现金流贴现": "经营现金流 (OCF)",
+            "净利润贴现": "净利润 (Net Income)",
+            "自由现金流贴现": "自由现金流 (FCF)"
         },
         "default_method_idx": 0 # 默认选中第1个
     },
     "EN": {
-        "app_title": "StockSifu Pro",
-        "nav_dcf": "Valuation",
-        "nav_port": "Wealth",
+        "app_title": "Build Your Wealth",
+        "nav_dcf": "IV Calculator",
+        "nav_port": "My Portfolio",
         
         "wl_title": "Watchlist",
         "dcf_title": "Configuration",
@@ -163,17 +218,18 @@ LANG = {
         
         "btn_calc": "Calculate",
         "btn_save_wl": "Save Snapshot",
+        "btn_new_val": "＋ New", # New
         
         "grp_basic": "Basics",
         "grp_fin": "Financials (Millions)",
-        "grp_growth": "Growth (%)",
-        "grp_more": "Discount & FX",
+        "grp_growth": "Growth & Discount (%)",
+        "grp_more": "Exchange Rate",
         
-        "name": "Name", "symbol": "Symbol", "method": "Model", 
+        "name": "Name", "symbol": "Ticker Symbol", "method": "Valuation Model", 
         "cf_val": "Base CF", "debt": "Total Debt (Short Term + LT Debt)", "cash": "Cash & Short Term Investments", "shares": "No. of Shares Outstanding (Millions)",
         "g1": "Growth 1-5y", "g2": "Growth 6-10y", "g3": "Growth 11-20y", "dr": "Discount Rate (%)",
-        "fin_curr": "Financial Statement Currency", "list_curr": "Stock Listing Currency", "rate": "FX Rate", "close": "Last Close",
-        "rate_hint": "i.e. 1 {0} = ? {1}",
+        "fin_curr": "Financial Statement Currency", "list_curr": "Stock Listing Currency", "rate": "Exchange Rate", "close": "Last Close",
+        "rate_hint": "i.e. 1 {0} = {2} {1}",
         "iv_lbl": "Intrinsic Value Per Share", "mos_lbl": "Premium/Discount",
         "val_date": "Valuation Date (Y/M)",
         
@@ -182,7 +238,7 @@ LANG = {
         
         "p_title": "Wealth Overview", 
         "card_net_worth": "Net Worth",
-        "card_cost": "Cost Basis",
+        "card_cost": "Cost",
         "card_pl": "Unrealized P&L",
         
         "p_add_btn": "➕ Add Position", 
@@ -191,7 +247,7 @@ LANG = {
         "p_batch_title": "Batch Update Market Data",
         "p_fetch": "⚡ Auto Fetch",
         "p_price_col": "Last Price",
-        "p_fx_col": "Current FX",
+        "p_fx_col": "Current Exchange Rate",
         "p_disp_curr": "Display Currency:", # New
         "p_global_rate": "Rate (1 USD = ?):", # New
         
@@ -209,11 +265,18 @@ LANG = {
         "msg_updating": "Updating prices...",
         "msg_updated": "Update Complete!",
         "err_no_yf": "yfinance not found",
+        "err_input_missing": "Please fill in all required fields.",
+        "err_input_invalid": "Please enter valid numbers.",
+        "err_cf_missing": "Cash Flow data is required.",
         
         "settings": "Settings",
         "lang_sel": "Language Selection",
         "restart_msg": "Language changed. Please restart the app.",
         "save_btn": "Save & Close",
+        # --- New Feedback Messages ---
+        "msg_calc_done": "Calculation complete ✅",
+        "msg_save_done": "Saved to Watchlist 💾",
+        "msg_new_ready": "Form reset. Ready for new input ✨",
         
         # --- New: Sort & Group ---
         "sort_lbl": "Sort:",
@@ -223,9 +286,9 @@ LANG = {
         "other_group": "Other",
 
         "methods": {
-            "Discounted Cash Flow": "OCF", 
+            "Discounted Cash Flow": "Operating Cash Flow", 
             "Discounted Net Income": "Net Income", 
-            "Discounted Free Cash Flow": "FCF"
+            "Discounted Free Cash Flow": "Free Cash Flow"
         },
         "default_method_idx": 0 # Default select 1st
     }
@@ -355,6 +418,53 @@ class OptimizedChart(ctk.CTkFrame):
         except Exception:
             pass
 
+class CleanInputDialog(ctk.CTkToplevel):
+    def __init__(self, master, title="Input", prompt="Enter value:"):
+        super().__init__(master)
+        self.title(title)
+        self.geometry("320x180")
+        self.resizable(False, False)
+        self.configure(fg_color=THEME["card"])
+        
+        # 居中显示
+        # self.eval(f'tk::PlaceWindow {self._w} center') # 有时在CTk中不稳定，手动计算位置更好
+        
+        self.result = None
+        
+        # 界面布局
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        
+        container = ctk.CTkFrame(self, fg_color="transparent")
+        container.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        ctk.CTkLabel(container, text=prompt, font=FONTS["h3"], text_color=THEME["text_main"]).pack(anchor="w", pady=(0, 10))
+        
+        self.entry = CleanEntry(container)
+        self.entry.pack(fill="x", pady=(0, 20))
+        self.entry.bind("<Return>", self.on_ok)
+        self.entry.focus_set() # 自动聚焦
+        
+        btn_box = ctk.CTkFrame(container, fg_color="transparent")
+        btn_box.pack(fill="x")
+        
+        ctk.CTkButton(btn_box, text="Cancel", width=100, fg_color=THEME["input_bg"], 
+                      text_color=THEME["text_main"], hover_color=THEME["card_hover"], 
+                      command=self.destroy).pack(side="left")
+                      
+        ctk.CTkButton(btn_box, text="Confirm", width=100, fg_color=THEME["primary"], 
+                      text_color="white", command=self.on_ok).pack(side="right")
+
+    def on_ok(self, event=None):
+        self.result = self.entry.get()
+        self.destroy()
+
+    def show(self):
+        self.transient(self.master) # 设置为临时窗口
+        self.grab_set()             # 模态：禁止操作主窗口
+        self.wait_window(self)      # 等待窗口关闭
+        return self.result
+
 # ==========================================
 # 🚀 主程序
 # ==========================================
@@ -368,8 +478,8 @@ class StockSifuUltimate(ctk.CTk):
         self.t = LANG[self.lang_code]
         # ----------------------
         
-        self.geometry("1400x900")
-        self.title("StockSifu Ultimate")
+        self.geometry("1920x1080")
+        self.title(self.t["app_title"])
         self.configure(fg_color=THEME["bg"])
 
         # 绑定关闭事件，处理 "invalid command name" 错误
@@ -425,7 +535,7 @@ class StockSifuUltimate(ctk.CTk):
 
         logo_box = ctk.CTkFrame(self.sidebar, fg_color="transparent")
         logo_box.pack(pady=(30, 30), padx=20, anchor="w")
-        ctk.CTkLabel(logo_box, text="StockSifu", font=("Segoe UI", 20, "bold"), text_color=THEME["text_main"]).pack(anchor="w")
+        ctk.CTkLabel(logo_box, text=self.t["app_title"], font=FONTS["h2"], text_color=THEME["text_main"]).pack(anchor="w")
         
         self.nav_btns = {}
         self.create_nav_btn("dcf", "📊  " + self.t["nav_dcf"], self.show_dcf)
@@ -614,7 +724,7 @@ class StockSifuUltimate(ctk.CTk):
                         if fx_tik in data_map:
                             e_fx.delete(0, "end"); e_fx.insert(0, f"{data_map[fx_tik]:.4f}")
 
-                btn_fetch.configure(state="normal", text=self.t["p_fetch"])
+                btn_fetch.configure(state="normal", text=self.t["p_fetch"], fg_color=THEME["primary"], text_color="white")
                 t.configure(cursor="")
                 
                 if count == 0 and len(data_map) == 0:
@@ -637,7 +747,7 @@ class StockSifuUltimate(ctk.CTk):
             self.refresh_port_view()
             t.destroy()
 
-        btn_fetch = ctk.CTkButton(bot, text=self.t["p_fetch"], fg_color=THEME["input_bg"], text_color=THEME["primary"], hover_color=THEME["card_hover"], command=run_fetch)
+        btn_fetch = ctk.CTkButton(bot, text=self.t["p_fetch"],fg_color=THEME["primary"], text_color="white", command=run_fetch)
         btn_fetch.pack(side="left")
         
         ctk.CTkButton(bot, text=self.t["save_btn"], fg_color=THEME["primary"], width=120, command=save_batch).pack(side="right")
@@ -693,6 +803,10 @@ class StockSifuUltimate(ctk.CTk):
         in_head.pack(fill="x", padx=20, pady=15)
         ctk.CTkLabel(in_head, text=self.t["dcf_title"], font=FONTS["h2"], text_color=THEME["text_main"]).pack(side="left")
         ctk.CTkButton(in_head, text="💾", width=36, height=28, fg_color=THEME["input_bg"], text_color=THEME["text_main"], command=self.save_to_wl).pack(side="right", padx=(5,0))
+        ctk.CTkButton(in_head, text=self.t["btn_new_val"], width=36, height=28, fg_color=THEME["input_bg"], text_color=THEME["text_main"], command=self.reset_dcf_form).pack(side="right", padx=(5,0))
+        # --- 修改结束 ---
+
+        # 优化：使用 CleanCombo
         self.grp_combo = CleanCombo(in_head, values=list(self.watchlist_data.keys()), width=120)
         self.grp_combo.pack(side="right")
 
@@ -701,9 +815,14 @@ class StockSifuUltimate(ctk.CTk):
         self.entries = {}
         self.init_dcf_inputs()
 
+        # --- 修改: 按钮绑定包装器 ---
         ctk.CTkButton(input_card, text=self.t["btn_calc"], height=48, font=FONTS["h3"],
                       fg_color=THEME["primary"], hover_color=THEME["primary_hover"], corner_radius=24,
-                      command=self.calculate_dcf).pack(fill="x", padx=40, pady=30)
+                      command=self.run_calculation).pack(fill="x", padx=40, pady=(30, 5))
+                      
+        # --- 新增: 状态标签 ---
+        self.lbl_status = ctk.CTkLabel(input_card, text="", font=FONTS["sub"], text_color=THEME["primary"])
+        self.lbl_status.pack(pady=(0, 10))
 
         # --- Result ---
         res_frame = ctk.CTkFrame(right_content, fg_color="transparent")
@@ -725,6 +844,20 @@ class StockSifuUltimate(ctk.CTk):
         self.txt_log = ctk.CTkTextbox(res_frame, fg_color=THEME["card"], text_color=THEME["text_sub"], 
                                       font=FONTS["mono"], corner_radius=10, border_width=1, border_color=THEME["border"])
         self.txt_log.pack(fill="both", expand=True)
+
+    # --- 新增: 通用反馈 ---
+    def show_feedback(self, msg, is_error=False):
+        color = THEME["v_risk"] if is_error else THEME["v_deep_val"] 
+        self.lbl_status.configure(text=msg, text_color=color)
+        self.after(3000, lambda: self.lbl_status.configure(text=""))
+
+    def run_calculation(self):
+        # 执行计算
+        gap, iv = self.calculate_dcf()
+        # 如果 calculation 返回 0,0 可能是因为验证失败（已经弹窗警告），这里就不显示“计算完成”了
+        if gap == 0 and iv == 0:
+            return 
+        self.show_feedback(self.t["msg_calc_done"])
 
     def toggle_watchlist_width(self):
         if self.watchlist_width > 100:
@@ -874,7 +1007,7 @@ class StockSifuUltimate(ctk.CTk):
             else:
                 w = CleanEntry(frame)
                 w.insert(0, str(default))
-                if key in ["fin_curr", "list_curr"]:
+                if key in ["fin_curr", "list_curr", "rate"]:
                     w.bind("<KeyRelease>", self.update_rate_hint)
             w.pack(fill="x")
             self.entries[key] = w
@@ -910,10 +1043,19 @@ class StockSifuUltimate(ctk.CTk):
         self.dcf_month.set(f"{now.month:02d}")
         self.dcf_month.pack(side="left", fill="x", expand=True)
         # --- 修改结束 ---
+        
+        # 修正：初始化时设置标签文本
+        # 获取当前选中的方法（add_field已设置默认值）
+        current_method = self.entries["method"].get()
+        # 从配置中获取对应标签，如果没有则使用默认值
+        initial_label = self.t["methods"].get(current_method, "Cash Flow")
 
         SectionHeader(f, self.t["grp_fin"]).grid(row=3, column=0, columnspan=2, pady=(20,5), sticky="w", padx=5)
-        self.lbl_cf_dynamic = ctk.CTkLabel(f, text="Free Cash Flow", font=FONTS["body_bold"], text_color=THEME["primary"])
+        
+        # 修正：使用获取到的 initial_label
+        self.lbl_cf_dynamic = ctk.CTkLabel(f, text=initial_label, font=FONTS["sub"], text_color=THEME["text_sub"])
         self.lbl_cf_dynamic.grid(row=4, column=0, columnspan=2, sticky="w", padx=10)
+        
         self.entry_cf = CleanEntry(f)
         self.entry_cf.insert(0, "70000")
         self.entry_cf.grid(row=5, column=0, columnspan=2, padx=5, pady=(0, 5), sticky="ew")
@@ -939,14 +1081,15 @@ class StockSifuUltimate(ctk.CTk):
 
     def on_method_change(self, choice):
         # 修改：从 self.t["methods"] 获取对应标签文本
-        # 如果找不到（比如加载了旧语言的存档），默认显示 "CF"
-        label_text = self.t["methods"].get(choice, "CF")
+        # 如果找不到（比如加载了旧语言的存档），默认显示 "Operating Cash Flow"
+        label_text = self.t["methods"].get(choice, "Operating Cash Flow")
         self.lbl_cf_dynamic.configure(text=label_text)
 
     def update_rate_hint(self, event=None):
         fin = self.entries["fin_curr"].get()
         lst = self.entries["list_curr"].get()
-        hint = self.t["rate_hint"].format(fin, lst)
+        rate = self.entries["rate"].get()
+        hint = self.t["rate_hint"].format(fin, lst, rate)
         self.lbl_rate_hint.configure(text=hint)
 
     def render_watchlist(self):
@@ -960,7 +1103,7 @@ class StockSifuUltimate(ctk.CTk):
             ctk.CTkLabel(g_frame, text=group, font=FONTS["sub_bold"], text_color=THEME["text_sub"]).pack(side="left", padx=5)
             
             ctk.CTkButton(g_frame, text="Del", width=30, height=20, fg_color=THEME["input_bg"], text_color=THEME["v_risk"],
-                          font=("Arial", 10), command=lambda g=group: self.delete_wl_group(g)).pack(side="right")
+                          font=FONTS["tag"], command=lambda g=group: self.delete_wl_group(g)).pack(side="right")
 
             for idx, item in enumerate(items):
                 gap = item.get("last_gap", 0)
@@ -1021,6 +1164,18 @@ class StockSifuUltimate(ctk.CTk):
         return {"bg": THEME["bg_risk"], "border": THEME["v_risk"], "text": THEME["v_risk"]}
 
     def calculate_dcf(self):
+        # 1. 验证必填项
+        required_fields = ["g1", "g2", "g3", "dr", "debt", "cash", "shares", "rate", "close"]
+        for k in required_fields:
+            if not self.entries[k].get().strip():
+                messagebox.showwarning("Input Missing", self.t["err_input_missing"])
+                return 0, 0
+        
+        if not self.entry_cf.get().strip():
+             messagebox.showwarning("Input Missing", self.t["err_cf_missing"])
+             return 0, 0
+
+        # 2. 验证数值格式
         try:
             cf = float(self.entry_cf.get())
             g1 = float(self.entries["g1"].get()) / 100
@@ -1032,7 +1187,9 @@ class StockSifuUltimate(ctk.CTk):
             shares = float(self.entries["shares"].get())
             rate = float(self.entries["rate"].get())
             close = float(self.entries["close"].get())
-        except: return 0, 0
+        except ValueError: 
+            messagebox.showerror("Invalid Input", self.t["err_input_invalid"])
+            return 0, 0
 
         total_pv = 0.0
         curr = cf
@@ -1042,7 +1199,7 @@ class StockSifuUltimate(ctk.CTk):
             curr *= (1 + g)
             pv = curr / ((1 + dr) ** y)
             total_pv += pv
-            if y % 5 == 0 or y == 1: log_lines.append(f"Y{y:<2} | CF:{curr:,.0f} | PV:{pv:,.0f}")
+            log_lines.append(f"Y{y:<2} | CF:{curr:,.0f} | PV:{pv:,.0f}")
 
         equity = total_pv + cash - debt
         iv = (equity / shares) * rate
@@ -1072,6 +1229,10 @@ class StockSifuUltimate(ctk.CTk):
         if not grp: return
         gap, iv = self.calculate_dcf()
         
+        # 如果 calculation 返回 0,0 可能是因为验证失败（已经弹窗警告），这里就中断保存
+        if gap == 0 and iv == 0:
+            return
+
         try: close = float(self.entries["close"].get())
         except: close = 0
 
@@ -1096,13 +1257,61 @@ class StockSifuUltimate(ctk.CTk):
         
         self.save_json_async(WATCHLIST_FILE, self.watchlist_data)
         self.load_wl_item(data)
+        
+        # --- 修改：增加反馈 ---
+        self.show_feedback(self.t["msg_save_done"])
+        # --------------------
+
+    # --- 新增: 重置表单 ---
+    def reset_dcf_form(self):
+        self.selected_wl_symbol = None
+        
+        # 清空所有标准输入框
+        for k, entry in self.entries.items():
+            if isinstance(entry, CleanEntry):
+                entry.delete(0, "end")
+            elif isinstance(entry, CleanCombo):
+                # 下拉框重置为默认值
+                if k == "method":
+                    options = list(self.t["methods"].keys())
+                    idx = self.t.get("default_method_idx", 0)
+                    entry.set(options[idx] if len(options) > idx else options[0])
+                else:
+                    entry.set("")
+
+        # 重新设置特定字段的默认值
+        self.entries["curr_year"].insert(0, str(datetime.datetime.now().year))
+        
+        # 重置日期选择器
+        now = datetime.datetime.now()
+        self.dcf_year.set(str(now.year))
+        self.dcf_month.set(f"{now.month:02d}")
+        
+        # 重置自由现金流
+        self.entry_cf.delete(0, "end")
+        self.entry_cf.insert(0, "0")
+        
+        # 重置计算结果显示
+        self.lbl_iv_big.configure(text="---", text_color=THEME["text_main"])
+        self.lbl_mos_badge.configure(text="---", fg_color=THEME["input_bg"], text_color=THEME["text_main"])
+        self.txt_log.delete("0.0", "end")
+        
+        # 刷新列表以移除选中高亮
+        self.render_watchlist()
+        
+        # --- 修改：增加反馈 ---
+        self.show_feedback(self.t["msg_new_ready"])
+        # --------------------
 
     def add_wl_group(self):
-        name = simpledialog.askstring("Group", "Name:")
+        dialog = CleanInputDialog(self, title="New Group", prompt="Group Name:")
+        name = dialog.show()
+        
         if name and name not in self.watchlist_data:
             self.watchlist_data[name] = []
             self.save_json_async(WATCHLIST_FILE, self.watchlist_data)
             self.grp_combo.configure(values=list(self.watchlist_data.keys()))
+            self.grp_combo.set(name) # 自动选中新建的组
             self.render_watchlist()
 
     def delete_wl_item(self, grp, idx):
@@ -1190,7 +1399,7 @@ class StockSifuUltimate(ctk.CTk):
         # Currency
         ctk.CTkLabel(ctrl_frame, text=self.t["p_disp_curr"], font=FONTS["sub_bold"], text_color=THEME["text_sub"]).pack(side="left")
         self.display_curr_var = ctk.StringVar(value="USD")
-        self.combo_display_curr = CleanCombo(ctrl_frame, values=["USD", "CNY", "HKD", "EUR", "JPY", "GBP", "SGD"], width=70, variable=self.display_curr_var, command=self.on_display_curr_change)
+        self.combo_display_curr = CleanCombo(ctrl_frame, values=["USD", "CNY", "HKD", "EUR", "JPY", "GBP", "SGD"], width=80, variable=self.display_curr_var, command=self.on_display_curr_change)
         self.combo_display_curr.pack(side="left", padx=(5, 15))
         
         # Global FX
@@ -1236,9 +1445,8 @@ class StockSifuUltimate(ctk.CTk):
         self.btn_add.pack(side="left")
         
         # --- 修改开始：新增批量更新按钮 ---
-        ctk.CTkButton(action_bar, text=self.t["p_batch_btn"], height=36, fg_color=THEME["input_bg"], 
-                      text_color=THEME["text_main"], hover_color=THEME["card_hover"],
-                      command=self.open_batch_update_window).pack(side="left", padx=10)
+        ctk.CTkButton(action_bar, text=self.t["p_batch_btn"], height=36, fg_color=THEME["primary"],
+                        command=self.open_batch_update_window).pack(side="left", padx=10)
         # --- 修改结束 ---
         
         self.input_panel = CleanCard(left_col) # Hidden by default
@@ -1278,7 +1486,7 @@ class StockSifuUltimate(ctk.CTk):
         f_country = ctk.CTkFrame(in_grid, fg_color="transparent")
         f_country.grid(row=1, column=3, padx=5, pady=5, sticky="ew")
         ctk.CTkLabel(f_country, text=self.t["f_country"], font=FONTS["sub"], text_color=THEME["text_sub"]).pack(anchor="w")
-        self.p_country = CleanCombo(f_country, values=["China", "Hong Kong", "USA", "Singapore", "Canada", "UK", "Germany", "Japan", "Other"])
+        self.p_country = CleanCombo(f_country, values=["China/HK", "US", "Europe", "Singapore", "Canada", "Japan", "South Korea", "India", "Other"])
         self.p_country.pack(fill="x")
         
         act_row = ctk.CTkFrame(self.input_panel, fg_color="transparent")
@@ -1554,8 +1762,8 @@ class StockSifuUltimate(ctk.CTk):
                     
                     header = ctk.CTkFrame(self.port_scroll, fg_color=THEME["header_bg"], height=30)
                     header.pack(fill="x", pady=(10, 2))
-                    ctk.CTkLabel(header, text=f"{grp_val}", font=("Segoe UI", 12, "bold"), text_color=THEME["text_main"]).pack(side="left", padx=10)
-                    ctk.CTkLabel(header, text=f"{grp_pct:.1f}%", font=("Segoe UI", 12, "bold"), text_color=THEME["primary"]).pack(side="right", padx=10)
+                    ctk.CTkLabel(header, text=f"{grp_val}", font=FONTS["body_bold"], text_color=THEME["text_main"]).pack(side="left", padx=10)
+                    ctk.CTkLabel(header, text=f"{grp_pct:.1f}%", font=FONTS["body_bold"], text_color=THEME["primary"]).pack(side="right", padx=10)
                     current_group_val = grp_val
 
             # Render Card
@@ -1564,8 +1772,13 @@ class StockSifuUltimate(ctk.CTk):
             
             # Left: Info
             left_box = ctk.CTkFrame(row, fg_color="transparent")
-            left_box.pack(side="left", padx=10, pady=5)
+            left_box.pack(side="left", padx=10, pady=6)
             ctk.CTkLabel(left_box, text=item["ticker"], font=FONTS["body_bold"], text_color=THEME["text_main"]).pack(anchor="w")
+
+            # 名称：字体更小，颜色更浅，营造层级感
+            name_txt = item["name"]
+            if len(name_txt) > 10: name_txt = name_txt[:9] + ".." # 稍微缩短截断长度以防换行
+            ctk.CTkLabel(left_box, text=name_txt, font=FONTS["sub"], text_color=THEME["text_sub"]).pack(anchor="w", pady=(2, 0)) # 增加一点行间距
             
             # Tags Row
             tag_row = ctk.CTkFrame(left_box, fg_color="transparent")
@@ -1595,7 +1808,9 @@ class StockSifuUltimate(ctk.CTk):
             val_frame.pack(anchor="e")
             port_pct = (data["val_usd"] / total_val_usd * 100) if total_val_usd else 0
             ctk.CTkLabel(val_frame, text=f"{sym_char} {data['val_disp']:,.0f}", font=FONTS["body_bold"], text_color=THEME["text_main"]).pack(side="left")
-            ctk.CTkLabel(val_frame, text=f" ({port_pct:.1f}%)", font=("Segoe UI", 11), text_color=THEME["text_sub"]).pack(side="left")
+
+            
+            ctk.CTkLabel(val_frame, text=f" ({port_pct:.1f}%)", font= FONTS["sub"], text_color=THEME["text_sub"]).pack(side="left")
             
             # P&L Pill
             pl_col = THEME["profit_bg"] if data["pl_disp"] >= 0 else THEME["loss_bg"]
@@ -1603,15 +1818,15 @@ class StockSifuUltimate(ctk.CTk):
             pl_str = f"{data['pl_disp']:+,.0f} ({data['pl_pct']:+.1%})"
             pill = ctk.CTkFrame(right_info_box, fg_color=pl_col, corner_radius=4, height=18)
             pill.pack(anchor="e", pady=(2,0))
-            ctk.CTkLabel(pill, text=pl_str, font=("Segoe UI", 10, "bold"), text_color=pl_txt).pack(padx=6, pady=1)
+            ctk.CTkLabel(pill, text=pl_str, font=FONTS["tag"], text_color=pl_txt).pack(padx=6, pady=1)
 
             # Mid: Price & Qty
             mid_box = ctk.CTkFrame(row, fg_color="transparent")
             mid_box.pack(side="right", padx=(5, 15), pady=5)
             asset_curr = item.get("curr", "USD")
             asset_sym = CURRENCY_SYMBOLS.get(asset_curr, asset_curr)
-            ctk.CTkLabel(mid_box, text=f"{asset_sym} {data['curr_price']:,.2f}", font=("Segoe UI", 12, "bold"), text_color=THEME["text_main"]).pack(anchor="e")
-            ctk.CTkLabel(mid_box, text=f"{data['qty']:,.0f} shares", font=("Segoe UI", 11), text_color=THEME["text_sub"]).pack(anchor="e")
+            ctk.CTkLabel(mid_box, text=f"{asset_sym} {data['curr_price']:,.2f}", font=FONTS["body_bold"], text_color=THEME["text_main"]).pack(anchor="e")
+            ctk.CTkLabel(mid_box, text=f"{data['qty']:,.0f} shares", font=FONTS["sub"], text_color=THEME["text_sub"]).pack(anchor="e")
 
 if __name__ == "__main__":
     app = StockSifuUltimate()

@@ -125,7 +125,7 @@ CURRENCY_SYMBOLS = {
 LANG = {
     "CN": {
         "app_title": "Build Your Wealth",
-        "nav_dcf": "估值计算",
+        "nav_dcf": "内在价值计算器",
         "nav_port": "资产管理",
         
         "wl_title": "关注列表",
@@ -210,7 +210,7 @@ LANG = {
     },
     "EN": {
         "app_title": "Build Your Wealth",
-        "nav_dcf": "IV Calculator",
+        "nav_dcf": "Intrinsic Value Calculator",
         "nav_port": "My Portfolio",
         
         "wl_title": "Watchlist",

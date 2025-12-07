@@ -259,7 +259,7 @@ LANG = {
         "p_edit": "Edit",
         
         "f_ticker": "Ticker", "f_name": "Name", "f_sec": "Sector","f_country": "Country",
-        "f_curr": "Curr", "f_fx": "FX", "f_qty": "Qty", "f_cost": "Avg Cost",
+        "f_curr": "Listed Currency", "f_fx": "Exchange Rate", "f_qty": "Quantity", "f_cost": "Avg Cost per Share",
         
         "tab_holdings": "Holdings %", "tab_sectors": "Sector %", "tab_countries": "Country %",
         "msg_updating": "Updating prices...",

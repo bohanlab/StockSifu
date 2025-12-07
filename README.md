@@ -1,4 +1,6 @@
 # StockSifu - 股票内在价值计算器和投资组合跟踪器
+- StockSifu 是一个基于 Python 和 CustomTkinter 个人投资组合追踪与股票估值工具。
+- StockSifu is a portfolio tracker and stock valuation tool built with Python & CustomTkinter.
 
 ## 主要功能
 

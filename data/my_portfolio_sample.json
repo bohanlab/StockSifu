@@ -4,7 +4,7 @@
         "name": "贵州茅台",
         "curr": "CNY",
         "fx": 7.0702,
-        "qty": 300.0,
+        "qty": 200.0,
         "cost": 1400.0,
         "sector": "Consumer Staples",
         "country": "China/HK",
@@ -25,9 +25,20 @@
         "name": "Apple",
         "curr": "USD",
         "fx": 1.0,
-        "qty": 30.0,
+        "qty": 100.0,
         "cost": 120.0,
         "sector": "Technology",
-        "country": "US"
+        "country": "US",
+        "last_price": 278.78
+    },
+    {
+        "ticker": "0700",
+        "name": "腾讯控股",
+        "curr": "HKD",
+        "fx": 7.7846,
+        "qty": 200.0,
+        "cost": 250.0,
+        "sector": "Communication Services",
+        "country": "China/HK"
     }
 ]

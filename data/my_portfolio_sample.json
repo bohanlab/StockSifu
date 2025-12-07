@@ -1,0 +1,33 @@
+[
+    {
+        "ticker": "600519",
+        "name": "贵州茅台",
+        "curr": "CNY",
+        "fx": 7.0702,
+        "qty": 300.0,
+        "cost": 1400.0,
+        "sector": "Consumer Staples",
+        "country": "China/HK",
+        "last_price": 1430.01
+    },
+    {
+        "ticker": "NVDA",
+        "name": "Nvidia",
+        "curr": "USD",
+        "fx": 1.0,
+        "qty": 200.0,
+        "cost": 136.0,
+        "sector": "Technology",
+        "country": "US"
+    },
+    {
+        "ticker": "AAPL",
+        "name": "Apple",
+        "curr": "USD",
+        "fx": 1.0,
+        "qty": 30.0,
+        "cost": 120.0,
+        "sector": "Technology",
+        "country": "US"
+    }
+]

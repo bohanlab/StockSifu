@@ -1,19 +1,20 @@
 # Python 编译文件
 __pycache__/
 *.py[cod]
-
-# 虚拟环境 (如果你用了)
-venv/
-.env
+*$py.class
 
 # 个人数据文件 (保护隐私)
-# 如果你想保留文件结构但不想上传具体数据，可以忽略具体的 json
+data/*.json
+!data/*_sample.json
 data/my_portfolio.json
 data/dcf_watchlist.json 
 
-# 缓存文件
 stocksifu_cache.sqlite
+stocksifu_cache.sqlite-shm
+stocksifu_cache.sqlite-wal
+
 .DS_Store
+Thumbs.db
 
 # IDE 配置
 .vscode/

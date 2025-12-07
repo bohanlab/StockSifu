@@ -1,3 +1,4 @@
+import shutil
 import customtkinter as ctk
 import json
 import os
@@ -304,6 +305,50 @@ if not os.path.exists(CONFIG_DIR): os.makedirs(CONFIG_DIR)
 PORTFOLIO_FILE = os.path.join(DATA_DIR, "my_portfolio.json")
 WATCHLIST_FILE = os.path.join(DATA_DIR, "dcf_watchlist.json")
 CONFIG_FILE = os.path.join(CONFIG_DIR, "app_config.json")
+
+# 定义样板文件路径 (Samples)
+PORTFOLIO_SAMPLE = os.path.join(DATA_DIR, "my_portfolio_sample.json")
+WATCHLIST_SAMPLE = os.path.join(DATA_DIR, "dcf_watchlist_sample.json")
+
+# --- 初始化用户数据函数 ---
+def init_user_data():
+    """
+    检查用户数据文件是否存在。
+    如果不存在 (新用户)，尝试从 _sample.json 复制。
+    如果连 sample 都没有，则创建一个空的默认文件。
+    """
+    
+    # 1. 初始化持仓文件 (my_portfolio.json)
+    if not os.path.exists(PORTFOLIO_FILE):
+        if os.path.exists(PORTFOLIO_SAMPLE):
+            try:
+                shutil.copy(PORTFOLIO_SAMPLE, PORTFOLIO_FILE)
+                print(f"初始化成功: 已从样板创建 {PORTFOLIO_FILE}")
+            except Exception as e:
+                print(f"复制样板失败: {e}")
+        else:
+            # 样板也不存在，创建空数组
+            print(f"未找到样板，创建空持仓文件: {PORTFOLIO_FILE}")
+            with open(PORTFOLIO_FILE, 'w', encoding='utf-8') as f:
+                json.dump([], f)
+
+    # 2. 初始化关注列表文件 (dcf_watchlist.json)
+    if not os.path.exists(WATCHLIST_FILE):
+        if os.path.exists(WATCHLIST_SAMPLE):
+            try:
+                shutil.copy(WATCHLIST_SAMPLE, WATCHLIST_FILE)
+                print(f"初始化成功: 已从样板创建 {WATCHLIST_FILE}")
+            except Exception as e:
+                print(f"复制样板失败: {e}")
+        else:
+            # 样板也不存在，创建空字典结构
+            print(f"未找到样板，创建空关注列表: {WATCHLIST_FILE}")
+            default_wl = {"Default": []}
+            with open(WATCHLIST_FILE, 'w', encoding='utf-8') as f:
+                json.dump(default_wl, f)
+
+# --- 在类定义之前，必须调用一次初始化 ---
+init_user_data()
 
 ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("blue")

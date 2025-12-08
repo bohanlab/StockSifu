@@ -200,11 +200,11 @@ LANG = {
         "other_group": "其他",
 
         "methods": {
-            "经营现金流贴现": "经营现金流 (百万元)",
-            "净利润贴现": "净利润 (百万元)",
-            "自由现金流贴现": "自由现金流 (百万元)"
+            "ocf": {"name": "经营现金流贴现", "label": "经营现金流 (百万元)"},
+            "ni":  {"name": "净利润贴现", "label": "净利润 (百万元)"},
+            "fcf": {"name": "自由现金流贴现", "label": "自由现金流 (百万元)"}
         },
-        "default_method_idx": 0 
+        "default_method_key": "ocf"
     },
     "EN": {
         "app_title": "Build Your Wealth",
@@ -220,7 +220,7 @@ LANG = {
         "btn_new_val": "＋ New", 
         
         "grp_basic": "Basics",
-        "grp_fin": "Financials (Millions)",
+        "grp_fin": "Financials",
         "grp_growth": "Growth & Discount",
         "grp_more": "Exchange Rate",
         
@@ -285,11 +285,11 @@ LANG = {
         "other_group": "Other",
 
         "methods": {
-            "Discounted Cash Flow": "Operating Cash Flow (Millions)", 
-            "Discounted Net Income": "Net Income (Millions)", 
-            "Discounted Free Cash Flow": "Free Cash Flow (Millions)"
+            "ocf": {"name": "Discounted Cash Flow", "label": "Operating Cash Flow (Millions)"},
+            "ni":  {"name": "Discounted Net Income", "label": "Net Income (Millions)"},
+            "fcf": {"name": "Discounted Free Cash Flow", "label": "Free Cash Flow (Millions)"}
         },
-        "default_method_idx": 0 # Default select 1st
+        "default_method_key": "ocf"
     }
 }
 
@@ -589,6 +589,24 @@ class StockSifuUltimate(ctk.CTk):
             if k == key: btn.configure(fg_color=THEME["input_bg"], text_color=THEME["primary"], font=FONTS["body_bold"])
             else: btn.configure(fg_color="transparent", text_color=THEME["text_sub"], font=FONTS["body"])
 
+    def rebuild_ui(self):
+        """销毁并重建所有UI组件以应用更改(如语言)"""
+        # 1. 销毁顶层组件
+        for widget in self.winfo_children():
+            widget.destroy()
+        
+        # 2. 重新加载翻译
+        self.t = LANG[self.lang_code]
+        self.title(self.t["app_title"])
+        
+        # 3. 重新构建UI
+        self.setup_sidebar()
+        self.setup_main_area()
+        
+        # 4. 恢复到之前的视图 (或默认视图)
+        # 注意: 如果视图状态很复杂, 这里可能需要保存和恢复更多状态
+        self.show_dcf()
+
     # --- 修改 3: 新增设置窗口逻辑 ---
     def open_settings(self):
         t = ctk.CTkToplevel(self)
@@ -611,15 +629,16 @@ class StockSifuUltimate(ctk.CTk):
         combo = CleanCombo(container, values=["中文", "English"], variable=self.lang_var, width=200)
         combo.pack(padx=20, pady=10)
         
-        def save_and_restart():
+        def save_and_refresh():
             new_lang = "CN" if self.lang_var.get() == "中文" else "EN"
             if new_lang != self.lang_code:
+                self.lang_code = new_lang
                 self.config["language"] = new_lang
                 self.save_json_async(CONFIG_FILE, self.config)
-                messagebox.showinfo("Restart Required", self.t["restart_msg"])
+                self.rebuild_ui() # 调用重建UI的方法
             t.destroy()
             
-        ctk.CTkButton(container, text=self.t["save_btn"], fg_color=THEME["primary"], height=36, command=save_and_restart).pack(pady=20)
+        ctk.CTkButton(container, text=self.t["save_btn"], fg_color=THEME["primary"], height=36, command=save_and_refresh).pack(pady=20)
 
  # --- 批量更新窗口 ---
     def open_batch_update_window(self):
@@ -781,27 +800,34 @@ class StockSifuUltimate(ctk.CTk):
     def setup_main_area(self):
         self.main_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.main_frame.grid(row=0, column=1, sticky="nsew", padx=0, pady=0)
+        self.main_frame.grid_rowconfigure(0, weight=1)
+        self.main_frame.grid_columnconfigure(0, weight=1)
+
+        # --- 核心优化: 创建持久化的视图框架 ---
+        self.dcf_view_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
+        self.port_view_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
+
+        for frame in (self.dcf_view_frame, self.port_view_frame):
+            frame.grid(row=0, column=0, sticky="nsew")
         
-        # 预先创建 ChartFrame (Lazy Load 逻辑)
-        self.port_view_initialized = False
+        # --- 一次性构建所有视图 ---
+        self.create_dcf_ui(self.dcf_view_frame)
+        self.create_port_ui(self.port_view_frame)
 
     def clear_main(self):
-        # 仅隐藏，不销毁（如果需要更复杂的视图管理，这里可以做优化，目前简单销毁非图表元素）
-        for w in self.main_frame.winfo_children(): 
-            w.pack_forget() 
-            w.grid_forget()
+        # 这个方法现在不再需要，因为我们不再销毁视图
+        pass
 
     # ==================================================================
     # 💎 Module 1: DCF Calculator
     # ==================================================================
     def show_dcf(self):
-        self.clear_main()
         self.set_active_nav("dcf")
+        self.dcf_view_frame.tkraise() # --- 核心优化: 只需置顶，无需重建 ---
         
-        # 每次重新创建 DCF 视图（DCF 视图较轻量，重建成本低，且无复杂图表）
-        if hasattr(self, 'dcf_grid'): self.dcf_grid.destroy()
-        
-        self.dcf_grid = ctk.CTkFrame(self.main_frame, fg_color="transparent")
+    def create_dcf_ui(self, parent_frame):
+        # --- 这个方法包含了原来 show_dcf() 中所有创建UI的逻辑 ---
+        self.dcf_grid = ctk.CTkFrame(parent_frame, fg_color="transparent")
         self.dcf_grid.pack(fill="both", expand=True, padx=20, pady=20)
         
         self.wl_container = ctk.CTkFrame(self.dcf_grid, fg_color="transparent", width=self.watchlist_width)
@@ -821,7 +847,6 @@ class StockSifuUltimate(ctk.CTk):
 
         self.build_watchlist_ui(self.wl_container)
 
-        # --- Input ---
         input_card = CleanCard(right_content)
         input_card.grid(row=0, column=0, sticky="nsew", padx=(0, 15))
         
@@ -830,9 +855,7 @@ class StockSifuUltimate(ctk.CTk):
         ctk.CTkLabel(in_head, text=self.t["dcf_title"], font=FONTS["h2"], text_color=THEME["text_main"]).pack(side="left")
         ctk.CTkButton(in_head, text="💾", width=36, height=28, fg_color=THEME["input_bg"], text_color=THEME["text_main"], command=self.save_to_wl).pack(side="right", padx=(5,0))
         ctk.CTkButton(in_head, text=self.t["btn_new_val"], width=36, height=28, fg_color=THEME["input_bg"], text_color=THEME["text_main"], command=self.reset_dcf_form).pack(side="right", padx=(5,0))
-        # --- 修改结束 ---
 
-        # 优化：使用 CleanCombo
         self.grp_combo = CleanCombo(in_head, values=list(self.watchlist_data.keys()), width=120)
         self.grp_combo.pack(side="right")
 
@@ -841,16 +864,13 @@ class StockSifuUltimate(ctk.CTk):
         self.entries = {}
         self.init_dcf_inputs()
 
-        # --- 修改: 按钮绑定包装器 ---
         ctk.CTkButton(input_card, text=self.t["btn_calc"], height=48, font=FONTS["h3"],
                       fg_color=THEME["primary"], hover_color=THEME["primary_hover"], corner_radius=24,
                       command=self.run_calculation).pack(fill="x", padx=40, pady=(30, 5))
                       
-        # --- 新增: 状态标签 ---
         self.lbl_status = ctk.CTkLabel(input_card, text="", font=FONTS["sub"], text_color=THEME["primary"])
         self.lbl_status.pack(pady=(0, 10))
 
-        # --- Result ---
         res_frame = ctk.CTkFrame(right_content, fg_color="transparent")
         res_frame.grid(row=0, column=1, sticky="nsew")
         
@@ -1037,16 +1057,19 @@ class StockSifuUltimate(ctk.CTk):
             ctk.CTkLabel(frame, text=self.t.get(key, key), font=FONTS["sub"], text_color=THEME["text_sub"]).pack(anchor="w", pady=(0, 2))
             
             if is_combo:
-                # 优化：使用 CleanCombo 并从 self.t["methods"] 获取选项
-                options = list(self.t["methods"].keys())
-                w = CleanCombo(frame, values=options, height=32, 
-                               command=self.on_method_change)
-                if default in options:
-                    w.set(default)
-                else:
-                    # 如果默认值不在当前语言选项中（比如切换语言后），默认选配置的索引
-                    idx = self.t.get("default_method_idx", 0)
-                    w.set(options[idx] if len(options) > idx else options[0])
+                # --- 核心修改: 使用新的`methods`结构 ---
+                # 1. 创建从显示名称到中性键的映射
+                self.method_display_to_key_map = {v["name"]: k for k, v in self.t["methods"].items()}
+                
+                # 2. 获取要在下拉菜单中显示的名称列表
+                options = list(self.method_display_to_key_map.keys())
+                
+                w = CleanCombo(frame, values=options, height=32, command=self.on_method_change)
+                
+                # 3. 设置默认值
+                default_key = self.t.get("default_method_key", "ocf")
+                default_display_name = self.t["methods"].get(default_key, {}).get("name", options[0])
+                w.set(default_display_name)
             else:
                 w = CleanEntry(frame)
                 w.insert(0, str(default))
@@ -1089,9 +1112,11 @@ class StockSifuUltimate(ctk.CTk):
         
         # 修正：初始化时设置标签文本
         # 获取当前选中的方法（add_field已设置默认值）
-        current_method = self.entries["method"].get()
-        # 从配置中获取对应标签，如果没有则使用默认值
-        initial_label = self.t["methods"].get(current_method, "Cash Flow")
+        current_method_display = self.entries["method"].get()
+        current_method_key = self.method_display_to_key_map.get(current_method_display, "ocf")
+        
+        # 从配置中获取对应标签
+        initial_label = self.t["methods"].get(current_method_key, {}).get("label", "Cash Flow")
 
         SectionHeader(f, self.t["grp_fin"]).grid(row=3, column=0, columnspan=2, pady=(20,5), sticky="w", padx=5)
         
@@ -1122,8 +1147,11 @@ class StockSifuUltimate(ctk.CTk):
         self.lbl_rate_hint = ctk.CTkLabel(f, text="1 USD = ? USD", font=FONTS["sub"], text_color=THEME["primary"])
         self.lbl_rate_hint.grid(row=13, column=1, sticky="w", padx=5)
 
-    def on_method_change(self, choice):
-        label_text = self.t["methods"].get(choice, "Operating Cash Flow")
+    def on_method_change(self, choice_display_name):
+        # 通过显示名称反向查找到中性键
+        method_key = self.method_display_to_key_map.get(choice_display_name, "ocf")
+        # 使用中性键获取对应的标签文本
+        label_text = self.t["methods"].get(method_key, {}).get("label", "Cash Flow")
         self.lbl_cf_dynamic.configure(text=label_text)
 
     def update_rate_hint(self, event=None):
@@ -1246,8 +1274,9 @@ class StockSifuUltimate(ctk.CTk):
     def render_watchlist(self):
         for w in self.wl_scroll.winfo_children(): w.destroy()
         
-        # 用于存储行组件引用，供拖拽计算位置使用
         self.group_row_widgets = {}
+        # --- 核心优化: 创建一个从 symbol 到 widget 的直接映射 ---
+        self.watchlist_item_widgets = {}
         
         for group, items in self.watchlist_data.items():
             self.group_row_widgets[group] = []
@@ -1256,7 +1285,6 @@ class StockSifuUltimate(ctk.CTk):
             g_frame.pack(fill="x", pady=(15, 5))
             ctk.CTkLabel(g_frame, text=group, font=FONTS["sub_bold"], text_color=THEME["text_sub"]).pack(side="left", padx=5)
             
-            # 只有编辑模式下才显示组删除按钮
             if self.wl_edit_mode:
                 ctk.CTkButton(g_frame, text="Del Group", width=60, height=20, fg_color=THEME["input_bg"], text_color=THEME["v_risk"],
                               font=FONTS["tag"], command=lambda g=group: self.delete_wl_group(g)).pack(side="right")
@@ -1265,7 +1293,9 @@ class StockSifuUltimate(ctk.CTk):
                 gap = item.get("last_gap", 0)
                 color_conf = self.get_valuation_config(gap)
                 
-                is_selected = (item.get('symbol') == self.selected_wl_symbol)
+                symbol = item.get('symbol')
+                is_selected = (symbol == self.selected_wl_symbol)
+                
                 bg_color = THEME["list_selected"] if is_selected else color_conf["bg"]
                 border_col = THEME["primary"] if is_selected else color_conf["border"]
                 border_w = 2 if is_selected else 1
@@ -1273,29 +1303,32 @@ class StockSifuUltimate(ctk.CTk):
                 row = ctk.CTkFrame(self.wl_scroll, fg_color=bg_color, corner_radius=6, border_width=border_w, border_color=border_col)
                 row.pack(fill="x", pady=3, padx=2)
                 
-                # 保存引用
+                # --- 核心优化: 存储 widget 引用 ---
+                if symbol:
+                    self.watchlist_item_widgets[symbol] = {
+                        "widget": row,
+                        "item_data": item # 存储item数据以便后续恢复颜色
+                    }
+                
                 self.group_row_widgets[group].append(row)
                 
-                def bind_click(widget, item):
-                    if isinstance(widget, ctk.CTkButton):
+                def bind_click(widget, item_data):
+                    # 避免给按钮也绑定上 load 事件
+                    if isinstance(widget, (ctk.CTkButton, ctk.CTkLabel)) and (widget.cget("text") in ["×", "⣿", "Del Group"]):
                         return
-                    if isinstance(widget, ctk.CTkLabel) and widget._text == "⣿":
-                        return
-                    widget.bind("<Button-1>", lambda e=None: self.load_wl_item(item))
+                        
+                    widget.bind("<Button-1>", lambda e=None, i=item_data: self.load_wl_item(i))
                     for child in widget.winfo_children():
-                        bind_click(child, item)
+                        bind_click(child, item_data)
                 
                 pill = ctk.CTkFrame(row, width=4, height=28, fg_color=color_conf["text"], corner_radius=2)
                 pill.pack(side="left", padx=(8, 5))
                 
-                # --- 修改：只在编辑模式显示删除按钮 ---
                 if self.wl_edit_mode:
                     del_btn = ctk.CTkButton(row, text="×", width=24, height=24, fg_color="transparent", text_color=THEME["text_sub"],
                                             hover_color=THEME["v_risk"], command=lambda g=group, i=idx: self.delete_wl_item(g, i))
                     del_btn.pack(side="left", padx=(0, 5))
-                # -----------------------------------
 
-                # --- 修改：只在编辑模式显示拖拽手柄 ---
                 if self.wl_edit_mode:
                     drag_handle = ctk.CTkLabel(row, text="⣿", width=24, font=("Arial", 14), 
                                                text_color=THEME["text_sub"], cursor="fleur")
@@ -1304,7 +1337,6 @@ class StockSifuUltimate(ctk.CTk):
                     drag_handle.bind("<Button-1>", lambda e, g=group, i=idx, d=item: self.start_drag(e, g, i, d))
                     drag_handle.bind("<B1-Motion>", self.on_drag_motion)
                     drag_handle.bind("<ButtonRelease-1>", self.stop_drag)
-                # -----------------------------------
 
                 f_right = ctk.CTkFrame(row, fg_color="transparent")
                 f_right.pack(side="right", padx=5, pady=5)
@@ -1313,9 +1345,9 @@ class StockSifuUltimate(ctk.CTk):
                 price = item.get("last_close", 0)
                 iv = item.get("last_iv", 0)
                 
-                l1 = ctk.CTkLabel(f_right, text=f"${price:,.2f}  {gap_txt}", font=FONTS["body_bold"], text_color=color_conf["text"])
+                l1 = ctk.CTkLabel(f_right, text=f"{item.get('list_curr','')} {price:,.2f}  {gap_txt}", font=FONTS["body_bold"], text_color=color_conf["text"])
                 l1.pack(anchor="e")
-                l2 = ctk.CTkLabel(f_right, text=f"IV: ${iv:,.2f}", font=FONTS["sub"], text_color=THEME["text_sub"])
+                l2 = ctk.CTkLabel(f_right, text=f"IV: {iv:,.2f}", font=FONTS["sub"], text_color=THEME["text_sub"])
                 l2.pack(anchor="e")
 
                 f_left = ctk.CTkFrame(row, fg_color="transparent")
@@ -1409,10 +1441,15 @@ class StockSifuUltimate(ctk.CTk):
         params_dict = {k: v.get() for k, v in self.entries.items()}
         params_dict["val_date"] = val_date
         
+        # --- 核心修改: 保存语言无关的 method_key ---
+        current_method_display = self.entries["method"].get()
+        method_key = self.method_display_to_key_map.get(current_method_display, "ocf")
+        
         data = {
             "symbol": self.entries["symbol"].get(),
             "name": self.entries["name"].get(),
-            "method": self.entries["method"].get(),
+            "method_key": method_key, # 保存key
+            "method": current_method_display, # 保留旧字段用于向后兼容显示
             "cf": self.entry_cf.get(),
             "last_gap": gap,
             "last_iv": iv,
@@ -1442,9 +1479,10 @@ class StockSifuUltimate(ctk.CTk):
             elif isinstance(entry, CleanCombo):
                 # 下拉框重置为默认值
                 if k == "method":
-                    options = list(self.t["methods"].keys())
-                    idx = self.t.get("default_method_idx", 0)
-                    entry.set(options[idx] if len(options) > idx else options[0])
+                    # --- 核心修改: 使用新的`methods`结构 ---
+                    default_key = self.t.get("default_method_key", "ocf")
+                    default_display_name = self.t["methods"].get(default_key, {}).get("name", "")
+                    entry.set(default_display_name)
                 else:
                     entry.set("")
 
@@ -1491,25 +1529,65 @@ class StockSifuUltimate(ctk.CTk):
             self.render_watchlist()
 
     def load_wl_item(self, item):
-        # 只有当选中的 ID 变化时才刷新列表UI，避免重复点击导致的无意义刷新
-        if self.selected_wl_symbol != item.get('symbol'):
-            self.selected_wl_symbol = item.get('symbol')
-            self.render_watchlist() 
+        new_symbol = item.get('symbol')
         
-        self.entries["symbol"].delete(0,"end"); self.entries["symbol"].insert(0, item["symbol"])
-        self.entries["name"].delete(0,"end"); self.entries["name"].insert(0, item["name"])
+        # --- 核心优化: 精确更新UI，避免全局刷新 ---
+        # 1. 如果点击的是同一个项目，则不执行任何操作
+        if self.selected_wl_symbol == new_symbol:
+            return
+
+        # 2. 取消旧项目的选中状态 (如果存在)
+        if self.selected_wl_symbol and self.selected_wl_symbol in self.watchlist_item_widgets:
+            old_widget_info = self.watchlist_item_widgets[self.selected_wl_symbol]
+            old_widget = old_widget_info["widget"]
+            old_item_data = old_widget_info["item_data"]
+            
+            # 恢复其基于估值区间的正常颜色
+            gap = old_item_data.get("last_gap", 0)
+            color_conf = self.get_valuation_config(gap)
+            old_widget.configure(fg_color=color_conf["bg"], border_color=color_conf["border"], border_width=1)
+
+        # 3. 设置新项目的选中状态
+        if new_symbol and new_symbol in self.watchlist_item_widgets:
+            new_widget_info = self.watchlist_item_widgets[new_symbol]
+            new_widget = new_widget_info["widget"]
+            
+            # 设置为高亮颜色
+            new_widget.configure(fg_color=THEME["list_selected"], border_color=THEME["primary"], border_width=2)
+
+        # 4. 更新当前选中的 symbol
+        self.selected_wl_symbol = new_symbol
+        # ----------------------------------------------------
         
-        # 修改：加载时直接设置值。注意：如果存档是英文，当前是中文，下拉框会显示英文。
-        # 这是一个折衷方案，因为做自动映射需要更复杂的逻辑。用户重新选择即可更新。
-        saved_method = item["method"]
-        self.entries["method"].set(saved_method)
-        self.on_method_change(saved_method)
+        # --- 以下是加载数据到右侧表单的逻辑 (保持不变) ---
+        self.entries["symbol"].delete(0,"end"); self.entries["symbol"].insert(0, item.get("symbol", ""))
+        self.entries["name"].delete(0,"end"); self.entries["name"].insert(0, item.get("name", ""))
         
-        self.entry_cf.delete(0,"end"); self.entry_cf.insert(0, item["cf"])
+        target_display_method = ""
+        saved_method_key = item.get("method_key")
+        if saved_method_key and saved_method_key in self.t["methods"]:
+            target_display_method = self.t["methods"][saved_method_key]["name"]
+        else:
+            saved_display_text = item.get("method", "")
+            for lang_data in LANG.values():
+                if saved_display_text in [v['name'] for v in lang_data["methods"].values()]:
+                    found_key = next((k for k, v in lang_data["methods"].items() if v['name'] == saved_display_text), None)
+                    if found_key:
+                        target_display_method = self.t["methods"].get(found_key, {}).get("name")
+                        break
+        
+        if not target_display_method:
+            default_key = self.t.get("default_method_key", "ocf")
+            target_display_method = self.t["methods"].get(default_key, {}).get("name")
+
+        if target_display_method:
+            self.entries["method"].set(target_display_method)
+            self.on_method_change(target_display_method)
+        
+        self.entry_cf.delete(0,"end"); self.entry_cf.insert(0, item.get("cf", "0"))
         
         params = item.get("params", {})
         
-        # --- 修改开始：处理日期回显及兼容旧数据 ---
         val_date = params.get("val_date", "")
         if val_date and "-" in val_date:
             y, m = val_date.split("-")
@@ -1517,13 +1595,15 @@ class StockSifuUltimate(ctk.CTk):
             self.dcf_month.set(m)
 
         for k, v in params.items():
-            if k in self.entries and k not in ["symbol", "name", "method"]: # 忽略 
-                self.entries[k].delete(0,"end")
-                self.entries[k].insert(0, v)
+            if k in self.entries and k not in ["symbol", "name", "method", "val_date"]:
+                if self.entries[k].get() != str(v):
+                    self.entries[k].delete(0,"end")
+                    self.entries[k].insert(0, v)
         
         if "last_close" in item and item["last_close"] > 0:
-             self.entries["close"].delete(0, "end")
-             self.entries["close"].insert(0, f"{item['last_close']:.2f}")
+             if self.entries["close"].get() != f"{item['last_close']:.2f}":
+                self.entries["close"].delete(0, "end")
+                self.entries["close"].insert(0, f"{item['last_close']:.2f}")
 
         self.calculate_dcf()
         self.update_rate_hint()
@@ -1532,20 +1612,17 @@ class StockSifuUltimate(ctk.CTk):
     # 📊 Module 2: Portfolio Pro
     # ==================================================================
     def show_port(self):
-        self.clear_main()
         self.set_active_nav("port")
-        self.editing_port_idx = -1
-        self.show_input_panel = False
+        self.port_view_frame.tkraise() # --- 核心优化: 只需置顶 ---
         
-        # 优化：不销毁图表容器，如果已存在则复用
-        if not hasattr(self, 'port_grid') or not self.port_grid.winfo_exists():
-            self.create_port_ui()
-            
+        # 切换回来时刷新数据，确保数据是 актуально (up-to-date)
+        # 注意：如果数据量特别大且不经常变动，可以考虑更懒惰的刷新策略
+        self.refresh_port_view() 
+        
+    def create_port_ui(self, parent_frame):
+        # --- 这个方法包含了原来 show_port() 中所有创建UI的逻辑 ---
+        self.port_grid = ctk.CTkFrame(parent_frame, fg_color="transparent")
         self.port_grid.pack(fill="both", expand=True, padx=20, pady=20)
-        self.refresh_port_view()
-
-    def create_port_ui(self):
-        self.port_grid = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         
         # --- Top: Stats Dashboard ---
         stats_row = ctk.CTkFrame(self.port_grid, fg_color="transparent")
@@ -1662,7 +1739,7 @@ class StockSifuUltimate(ctk.CTk):
 
         # 移除旧表头，因为卡片式布局不需要对齐列
         # list_head = CleanCard(left_col, corner_radius=8, fg_color=THEME["bg"], border_width=0)
-        # list_head.pack(fill="x", pady=5) ...
+        # list_head.pack(fill="x", pady=5)
 
         self.port_scroll = ctk.CTkScrollableFrame(left_col, fg_color="transparent")
         self.port_scroll.pack(fill="both", expand=True)
@@ -1816,7 +1893,7 @@ class StockSifuUltimate(ctk.CTk):
                     if found and "last_close" in found:
                         curr_price = found["last_close"]
                         break
-            if curr_price <= 0: curr_price = item["cost"]
+            if curr_price <= 0: curr_price = item.get("cost", 0)
 
             # Calc
             try:

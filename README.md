@@ -81,3 +81,7 @@ python main.py
 ## 免责声明 | Disclaimer
 - 本软件仅供个人学习和参考使用，不构成任何投资建议。股市有风险，投资需谨慎。开发者不对因使用本软件产生的任何投资损失负责。
 - This software is for personal study and reference only and does not constitute any investment advice. The stock market is risky, and investment should be cautious. The developer is not responsible for any investment losses resulting from the use of this software.
+
+## 许可证 | License
+- 本项目采用 MIT 许可证。详情请见 `LICENSE` 文件。
+- This project is licensed under the MIT License. See the `LICENSE` file for details.

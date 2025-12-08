@@ -134,17 +134,17 @@ LANG = {
         
         "btn_calc": "开始计算",
         "btn_save_wl": "保存快照",
-        "btn_new_val": "＋ 新建", # 新增
+        "btn_new_val": "＋ 新建", 
         
         "grp_basic": "基础信息",
-        "grp_fin": "财务数据 (百万元)",
-        "grp_growth": "增长与折现 (%)",
+        "grp_fin": "财务数据",
+        "grp_growth": "增长与折现",
         "grp_more": "汇率",
         
         "name": "名称", "symbol": "股票代码", "method": "估值模型", 
-        "cf_val": "现金流", "debt": "负债", "cash": "现金", "shares": "股本 (百万)",
-        "g1": "1-5年增长", "g2": "6-10年增长", "g3": "11-20年增长", "dr": "折现率 (%)",
-        "fin_curr": "财报货币", "list_curr": "上市交易货币", "rate": "汇率", "close": "最新价",
+        "cf_val": "现金流 (百万元)", "debt": "负债 (百万元)", "cash": "现金 (百万元)", "shares": "股本 (百万)",
+        "g1": "1-5年增长 (%)", "g2": "6-10年增长 (%)", "g3": "11-20年增长 (%)", "dr": "折现率 (%)",
+        "fin_curr": "财报货币", "list_curr": "上市交易货币", "rate": "汇率", "close": "最新价 (元/股)",
         "rate_hint": "即: 1 {0} = {2} {1}", 
         "iv_lbl": "每股内在价值", "mos_lbl": "溢价率 (Price vs IV)",
         "val_date": "估值更新于 (年/月)", 
@@ -153,7 +153,7 @@ LANG = {
         "r_over": "⚠️ 高估", "r_v_over": "⛔️ 非常高估",
         
         "p_title": "我的财富概览", 
-        "card_net_worth": "总资产净值", # 简化文案
+        "card_net_worth": "总资产净值", 
         "card_cost": "总投入成本",
         "card_pl": "浮动盈亏",
         
@@ -164,8 +164,8 @@ LANG = {
         "p_fetch": "⚡ 联网获取",
         "p_price_col": "最新市价",
         "p_fx_col": "当前汇率",
-        "p_disp_curr": "显示货币:", # 新增
-        "p_global_rate": "汇率 (1 USD = ?):", # 新增
+        "p_disp_curr": "显示货币:", 
+        "p_global_rate": "汇率 (1 USD = ?):", 
         
         "p_edit_title": "编辑持仓",
         "p_del": "删除", 
@@ -189,12 +189,10 @@ LANG = {
         "lang_sel": "语言选择",
         "restart_msg": "语言已更改，请重启应用以生效。",
         "save_btn": "保存并关闭",
-        # --- 新增反馈提示语 ---
         "msg_calc_done": "计算完成 ✅",
         "msg_save_done": "已保存到关注列表 💾",
         "msg_new_ready": "已重置，准备新建 ✨",
         
-        # --- 新增: 排序与分组 ---
         "sort_lbl": "排序:",
         "group_lbl": "分组:",
         "sort_opts": ["市值 (高→低)", "市值 (低→高)", "盈亏 (高→低)", "代码 (A-Z)"],
@@ -202,11 +200,11 @@ LANG = {
         "other_group": "其他",
 
         "methods": {
-            "经营现金流贴现": "经营现金流 (OCF)",
-            "净利润贴现": "净利润 (Net Income)",
-            "自由现金流贴现": "自由现金流 (FCF)"
+            "经营现金流贴现": "经营现金流 (百万元)",
+            "净利润贴现": "净利润 (百万元)",
+            "自由现金流贴现": "自由现金流 (百万元)"
         },
-        "default_method_idx": 0 # 默认选中第1个
+        "default_method_idx": 0 
     },
     "EN": {
         "app_title": "Build Your Wealth",
@@ -219,17 +217,17 @@ LANG = {
         
         "btn_calc": "Calculate",
         "btn_save_wl": "Save Snapshot",
-        "btn_new_val": "＋ New", # New
+        "btn_new_val": "＋ New", 
         
         "grp_basic": "Basics",
         "grp_fin": "Financials (Millions)",
-        "grp_growth": "Growth & Discount (%)",
+        "grp_growth": "Growth & Discount",
         "grp_more": "Exchange Rate",
         
         "name": "Name", "symbol": "Ticker Symbol", "method": "Valuation Model", 
-        "cf_val": "Base CF", "debt": "Total Debt (Short Term + LT Debt)", "cash": "Cash & Short Term Investments", "shares": "No. of Shares Outstanding (Millions)",
-        "g1": "Growth 1-5y", "g2": "Growth 6-10y", "g3": "Growth 11-20y", "dr": "Discount Rate (%)",
-        "fin_curr": "Financial Statement Currency", "list_curr": "Stock Listing Currency", "rate": "Exchange Rate", "close": "Last Close",
+        "cf_val": "Base CF (Millions)", "debt": "Total Debt (Short Term + LT Debt) (Millions)", "cash": "Cash & Short Term Investments (Millions)", "shares": "No. of Shares Outstanding (Millions)",
+        "g1": "Growth 1-5y (%)", "g2": "Growth 6-10y (%)", "g3": "Growth 11-20y (%)", "dr": "Discount Rate (%)",
+        "fin_curr": "Financial Statement Currency", "list_curr": "Stock Listing Currency", "rate": "Exchange Rate", "close": "Last Close (Per Share)",
         "rate_hint": "i.e. 1 {0} = {2} {1}",
         "iv_lbl": "Intrinsic Value Per Share", "mos_lbl": "Premium/Discount",
         "val_date": "Valuation Date (Y/M)",
@@ -249,8 +247,8 @@ LANG = {
         "p_fetch": "⚡ Auto Fetch",
         "p_price_col": "Last Price",
         "p_fx_col": "Current Exchange Rate",
-        "p_disp_curr": "Display Currency:", # New
-        "p_global_rate": "Rate (1 USD = ?):", # New
+        "p_disp_curr": "Display Currency:", 
+        "p_global_rate": "Rate (1 USD = ?):", 
         
         "p_edit_title": "Edit Position",
         "p_del": "Del", 
@@ -287,9 +285,9 @@ LANG = {
         "other_group": "Other",
 
         "methods": {
-            "Discounted Cash Flow": "Operating Cash Flow", 
-            "Discounted Net Income": "Net Income", 
-            "Discounted Free Cash Flow": "Free Cash Flow"
+            "Discounted Cash Flow": "Operating Cash Flow (Millions)", 
+            "Discounted Net Income": "Net Income (Millions)", 
+            "Discounted Free Cash Flow": "Free Cash Flow (Millions)"
         },
         "default_method_idx": 0 # Default select 1st
     }
@@ -312,13 +310,6 @@ WATCHLIST_SAMPLE = os.path.join(DATA_DIR, "dcf_watchlist_sample.json")
 
 # --- 初始化用户数据函数 ---
 def init_user_data():
-    """
-    检查用户数据文件是否存在。
-    如果不存在 (新用户)，尝试从 _sample.json 复制。
-    如果连 sample 都没有，则创建一个空的默认文件。
-    """
-    
-    # 1. 初始化持仓文件 (my_portfolio.json)
     if not os.path.exists(PORTFOLIO_FILE):
         if os.path.exists(PORTFOLIO_SAMPLE):
             try:
@@ -391,7 +382,6 @@ class CleanEntry(ctk.CTkEntry):
         super().__init__(master, **kwargs)
 
 class CleanCombo(ctk.CTkComboBox):
-    """带边框和更好视觉效果的下拉框"""
     def __init__(self, master, **kwargs):
         kwargs.setdefault("fg_color", THEME["input_bg"])
         kwargs.setdefault("border_width", 1)
@@ -412,32 +402,18 @@ class SectionHeader(ctk.CTkLabel):
     def __init__(self, master, text):
         super().__init__(master, text=text, font=FONTS["sub_bold"], text_color=THEME["primary"], anchor="w")
 
-# ==========================================
-# 📈 优化组件: 持久化图表 (Persistent Chart)
-# ==========================================
 class OptimizedChart(ctk.CTkFrame):
-    """
-    性能优化核心：只初始化一次 Figure 和 Canvas。
-    更新数据时只做 clear 和 draw，避免销毁重建带来的巨大开销。
-    """
     def __init__(self, master, **kwargs):
         super().__init__(master, fg_color="transparent", **kwargs)
-        
-        # 1. 初始化 Figure (只做一次)
         self.fig, self.ax = plt.subplots(figsize=(4, 4), dpi=100)
         self.fig.patch.set_facecolor(THEME["card"])
         self.ax.set_facecolor(THEME["card"])
-        
-        # 2. 初始化 Canvas (只做一次)
         self.canvas = FigureCanvasTkAgg(self.fig, master=self)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
         
     def update_data(self, data_map, is_donut=False):
-        # 3. 仅清除内容，不销毁对象
         try:
-            # 增加 try-catch 防止关闭窗口时的竞态条件
             self.ax.clear()
-            
             if not data_map:
                 self.canvas.draw()
                 return
@@ -536,8 +512,17 @@ class StockSifuUltimate(ctk.CTk):
         self.editing_port_idx = -1
         
         self.selected_wl_symbol = None
-        self.watchlist_width = 320 
+        self.watchlist_width = 320
         self.show_input_panel = False
+        
+        # --- 新增：Watchlist 编辑模式状态 ---
+        self.wl_edit_mode = False
+
+        # --- 拖拽状态 ---
+        self.drag_data = {"group": None, "index": None, "item": None}
+        self.drag_active_row = None # 当前被拖拽的行引用
+        self.drag_indicator_window = None # 使用独立窗口作为指引线
+        self.proposed_drop_index = None
 
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -549,11 +534,10 @@ class StockSifuUltimate(ctk.CTk):
         self.is_running = True
 
     def on_closing(self):
-        """处理窗口关闭，防止后台线程更新 UI 导致错误"""
         self.is_running = False
-        plt.close('all') # 关闭所有 Matplotlib 图表
-        self.quit()      # 停止 mainloop
-        self.destroy()   # 销毁窗口
+        plt.close('all')
+        self.quit()
+        self.destroy()
 
     def load_json(self, f, default):
         if os.path.exists(f):
@@ -561,7 +545,7 @@ class StockSifuUltimate(ctk.CTk):
             except: return default
         return default
 
-    # ⚡️ 优化：异步保存，避免 IO 阻塞 UI
+    # 优化：异步保存，避免 IO 阻塞 UI
     def save_json_async(self, f, d):
         def _save_task():
             try:
@@ -697,9 +681,6 @@ class StockSifuUltimate(ctk.CTk):
             t.configure(cursor="watch")
             
             def _thread_task():
-                import pandas as pd
-                
-                # 1. 准备列表
                 tickers = [self.portfolio_data[i]["ticker"] for i, _, _ in self.batch_entries]
                 uniq_tickers = list(set([self.fix_ticker_for_yfinance(tik) for tik in tickers if tik]))
                 
@@ -773,7 +754,7 @@ class StockSifuUltimate(ctk.CTk):
                 t.configure(cursor="")
                 
                 if count == 0 and len(data_map) == 0:
-                     messagebox.showinfo("Info", "No data updated. Check network/tickers.")
+                      messagebox.showinfo("Info", "No data updated. Check network/tickers.")
                 
             threading.Thread(target=_thread_task, daemon=True).start()
 
@@ -929,17 +910,35 @@ class StockSifuUltimate(ctk.CTk):
         tools = ctk.CTkFrame(head, fg_color="transparent")
         tools.pack(side="right")
         self.btn_refresh = ctk.CTkButton(tools, text="🔄", width=28, height=24, fg_color=THEME["input_bg"], 
-                       text_color=THEME["primary"], hover_color=THEME["card_hover"],
-                       command=self.refresh_all_prices_thread)
+                               text_color=THEME["primary"], hover_color=THEME["card_hover"],
+                               command=self.refresh_all_prices_thread)
         self.btn_refresh.pack(side="left", padx=2)
-        ctk.CTkButton(tools, text="+", width=28, height=24, fg_color=THEME["input_bg"], 
-                      text_color=THEME["primary"], command=self.add_wl_group).pack(side="left", padx=2)
+        
+        # --- 修改：增加编辑按钮 ---
+        self.btn_edit_wl = ctk.CTkButton(tools, text="✎", width=28, height=24, fg_color=THEME["input_bg"], 
+                                         text_color=THEME["primary"], hover_color=THEME["card_hover"],
+                                         command=self.toggle_wl_edit_mode)
+        self.btn_edit_wl.pack(side="left", padx=2)
+        # ------------------------
+
+        ctk.CTkButton(tools, text="+", width=28, height=24, fg_color=THEME["input_bg"], text_color=THEME    ["primary"], hover_color=THEME["card_hover"], command=self.add_wl_group).pack(side="left", padx=2)
 
         self.wl_scroll = ctk.CTkScrollableFrame(wl_frame, fg_color="transparent")
         self.wl_scroll.pack(fill="both", expand=True)
         self.render_watchlist()
 
-    # --- 🌍 全球行情适配器 ---
+    # --- 新增：切换编辑模式 ---
+    def toggle_wl_edit_mode(self):
+        self.wl_edit_mode = not self.wl_edit_mode
+        # 更新按钮图标和颜色
+        if self.wl_edit_mode:
+            self.btn_edit_wl.configure(text="✓", fg_color=THEME["primary"], text_color="white")
+        else:
+            self.btn_edit_wl.configure(text="✎", fg_color=THEME["input_bg"], text_color=THEME["text_main"])
+        
+        # 重新渲染列表以显示/隐藏控件
+        self.render_watchlist()
+
     def fix_ticker_for_yfinance(self, symbol):
         s = symbol.strip().upper()
         if s.isdigit() and len(s) <= 5: 
@@ -1041,8 +1040,7 @@ class StockSifuUltimate(ctk.CTk):
                 # 优化：使用 CleanCombo 并从 self.t["methods"] 获取选项
                 options = list(self.t["methods"].keys())
                 w = CleanCombo(frame, values=options, height=32, 
-                                    command=self.on_method_change)
-                # 确保默认值在选项中，或者使用索引
+                               command=self.on_method_change)
                 if default in options:
                     w.set(default)
                 else:
@@ -1125,8 +1123,6 @@ class StockSifuUltimate(ctk.CTk):
         self.lbl_rate_hint.grid(row=13, column=1, sticky="w", padx=5)
 
     def on_method_change(self, choice):
-        # 修改：从 self.t["methods"] 获取对应标签文本
-        # 如果找不到（比如加载了旧语言的存档），默认显示 "Operating Cash Flow"
         label_text = self.t["methods"].get(choice, "Operating Cash Flow")
         self.lbl_cf_dynamic.configure(text=label_text)
 
@@ -1137,18 +1133,133 @@ class StockSifuUltimate(ctk.CTk):
         hint = self.t["rate_hint"].format(fin, lst, rate)
         self.lbl_rate_hint.configure(text=hint)
 
+    # --- 拖拽逻辑实现 ---
+    def start_drag(self, event, group, index, item_data):
+        self.drag_data = {"group": group, "index": index, "item": item_data}
+        
+        # 1. 高亮当前拖拽的行 (取代幽灵窗口)
+        rows = self.group_row_widgets.get(group, [])
+        if index < len(rows):
+            active_row = rows[index]
+            # 记录原始边框颜色以便恢复 (假设默认是透明或特定颜色)
+            self.drag_active_row = active_row
+            active_row.configure(border_color=THEME["primary"], border_width=2)
+        
+        # 2. 准备插入指示器 (不立即显示，motion中显示)
+        # 这里我们不创建，在 motion 中按需创建
+        
+        return "break"
+
+    def on_drag_motion(self, event):
+        # 计算并显示插入指示器
+        group = self.drag_data["group"]
+        rows = self.group_row_widgets.get(group, [])
+        if not rows: return
+
+        # 核心逻辑：使用屏幕绝对坐标 (rootx/rooty) 计算插入点
+        mouse_y = self.winfo_pointery()
+        best_dist = float('inf')
+        best_point = None
+
+        # 遍历所有可能的插入缝隙
+        if rows:
+            r0 = rows[0]
+            # 缝隙 0: 第0个元素上方
+            screen_y = r0.winfo_rooty() - 3 
+            dist = abs(mouse_y - screen_y)
+            if dist < best_dist:
+                best_dist = dist
+                # 宽度缩减：使用 -8 
+                best_point = (screen_y, 0, r0.winfo_width() - 80, r0.winfo_rootx() + 4)
+
+            for i, row in enumerate(rows):
+                # 缝隙 i+1: 当前元素下方
+                screen_bottom = row.winfo_rooty() + row.winfo_height() + 3
+                dist = abs(mouse_y - screen_bottom)
+                if dist < best_dist:
+                    best_dist = dist
+                    # 宽度缩减：使用 -8 
+                    best_point = (screen_bottom, i + 1, row.winfo_width() - 80, row.winfo_rootx() + 4)
+
+        # 更新指示器位置 (使用 Toplevel Window 实现，避免坐标系错乱)
+        if best_point:
+            line_y, target_index, line_w, line_x = best_point
+            
+            # 如果指示器窗口不存在，创建它
+            if not self.drag_indicator_window:
+                self.drag_indicator_window = ctk.CTkToplevel(self)
+                self.drag_indicator_window.overrideredirect(True) 
+                self.drag_indicator_window.attributes('-topmost', True) 
+                f = ctk.CTkFrame(self.drag_indicator_window, fg_color=THEME["primary"], corner_radius=2)
+                f.pack(fill="both", expand=True)
+            
+            # 设置窗口几何位置: WxH+X+Y
+            self.drag_indicator_window.geometry(f"{line_w}x4+{line_x}+{line_y}")
+            self.drag_indicator_window.deiconify() 
+            self.proposed_drop_index = target_index
+        else:
+            if self.drag_indicator_window:
+                self.drag_indicator_window.withdraw()
+            self.proposed_drop_index = None
+
+    def stop_drag(self, event):
+        if self.drag_indicator_window:
+            self.drag_indicator_window.destroy()
+            self.drag_indicator_window = None
+        
+        source_group = self.drag_data["group"]
+        source_index = self.drag_data["index"]
+        target_index = self.proposed_drop_index
+        
+        self.drag_data = {"group": None, "index": None, "item": None}
+        self.drag_active_row = None
+        self.proposed_drop_index = None
+        
+        if source_group is None or target_index is None: 
+            # 如果没有移动，强制刷新以去除高亮
+            self.render_watchlist()
+            return
+
+        # 只有位置真正改变时才处理
+        if target_index != source_index and target_index != source_index + 1:
+            # 调整索引: 如果在源下方插入，因为移除源会导致后面的索引前移，所以目标索引也要减1
+            if target_index > source_index:
+                target_index -= 1
+            
+            data_list = self.watchlist_data[source_group]
+            item = data_list.pop(source_index)
+            data_list.insert(target_index, item)
+            
+            self.save_json_async(WATCHLIST_FILE, self.watchlist_data)
+            self.render_watchlist()
+        else:
+            self.render_watchlist()
+
+    def delete_wl_item(self, grp, idx):
+        # 增加二次确认
+        item = self.watchlist_data[grp][idx]
+        if messagebox.askyesno("Confirm Delete", f"Remove '{item['symbol']}' from watchlist?"):
+            del self.watchlist_data[grp][idx]
+            self.save_json_async(WATCHLIST_FILE, self.watchlist_data)
+            self.render_watchlist()
+
     def render_watchlist(self):
-        # 简单优化：对于 Watchlist 这种可能频繁增删的列表，重建仍然是最安全简单的
-        # 深度优化可以做成 Widget Pool，但代码量会激增。
         for w in self.wl_scroll.winfo_children(): w.destroy()
         
+        # 用于存储行组件引用，供拖拽计算位置使用
+        self.group_row_widgets = {}
+        
         for group, items in self.watchlist_data.items():
+            self.group_row_widgets[group] = []
+            
             g_frame = ctk.CTkFrame(self.wl_scroll, fg_color="transparent")
             g_frame.pack(fill="x", pady=(15, 5))
             ctk.CTkLabel(g_frame, text=group, font=FONTS["sub_bold"], text_color=THEME["text_sub"]).pack(side="left", padx=5)
             
-            ctk.CTkButton(g_frame, text="Del", width=30, height=20, fg_color=THEME["input_bg"], text_color=THEME["v_risk"],
-                          font=FONTS["tag"], command=lambda g=group: self.delete_wl_group(g)).pack(side="right")
+            # 只有编辑模式下才显示组删除按钮
+            if self.wl_edit_mode:
+                ctk.CTkButton(g_frame, text="Del Group", width=60, height=20, fg_color=THEME["input_bg"], text_color=THEME["v_risk"],
+                              font=FONTS["tag"], command=lambda g=group: self.delete_wl_group(g)).pack(side="right")
 
             for idx, item in enumerate(items):
                 gap = item.get("last_gap", 0)
@@ -1162,25 +1273,38 @@ class StockSifuUltimate(ctk.CTk):
                 row = ctk.CTkFrame(self.wl_scroll, fg_color=bg_color, corner_radius=6, border_width=border_w, border_color=border_col)
                 row.pack(fill="x", pady=3, padx=2)
                 
-                # --- 修改开始：修复 bind_click 报错并防止误触 ---
+                # 保存引用
+                self.group_row_widgets[group].append(row)
+                
                 def bind_click(widget, item):
-                    # 1. 跳过按钮（如删除按钮），防止点击删除时同时触发加载详情
                     if isinstance(widget, ctk.CTkButton):
                         return
-                    
-                    # 2. 关键修复：lambda e=None，允许该函数在无参数情况下被调用，解决 TypeError
+                    if isinstance(widget, ctk.CTkLabel) and widget._text == "⣿":
+                        return
                     widget.bind("<Button-1>", lambda e=None: self.load_wl_item(item))
-                    
                     for child in widget.winfo_children():
                         bind_click(child, item)
-                # --- 修改结束 ---
                 
                 pill = ctk.CTkFrame(row, width=4, height=28, fg_color=color_conf["text"], corner_radius=2)
                 pill.pack(side="left", padx=(8, 5))
                 
-                del_btn = ctk.CTkButton(row, text="×", width=24, height=24, fg_color="transparent", text_color=THEME["text_sub"],
-                                        hover_color=THEME["v_risk"], command=lambda g=group, i=idx: self.delete_wl_item(g, i))
-                del_btn.pack(side="right", padx=5)
+                # --- 修改：只在编辑模式显示删除按钮 ---
+                if self.wl_edit_mode:
+                    del_btn = ctk.CTkButton(row, text="×", width=24, height=24, fg_color="transparent", text_color=THEME["text_sub"],
+                                            hover_color=THEME["v_risk"], command=lambda g=group, i=idx: self.delete_wl_item(g, i))
+                    del_btn.pack(side="left", padx=(0, 5))
+                # -----------------------------------
+
+                # --- 修改：只在编辑模式显示拖拽手柄 ---
+                if self.wl_edit_mode:
+                    drag_handle = ctk.CTkLabel(row, text="⣿", width=24, font=("Arial", 14), 
+                                               text_color=THEME["text_sub"], cursor="fleur")
+                    drag_handle.pack(side="right", padx=(0, 5))
+                    
+                    drag_handle.bind("<Button-1>", lambda e, g=group, i=idx, d=item: self.start_drag(e, g, i, d))
+                    drag_handle.bind("<B1-Motion>", self.on_drag_motion)
+                    drag_handle.bind("<ButtonRelease-1>", self.stop_drag)
+                # -----------------------------------
 
                 f_right = ctk.CTkFrame(row, fg_color="transparent")
                 f_right.pack(side="right", padx=5, pady=5)
@@ -1359,11 +1483,6 @@ class StockSifuUltimate(ctk.CTk):
             self.grp_combo.set(name) # 自动选中新建的组
             self.render_watchlist()
 
-    def delete_wl_item(self, grp, idx):
-        del self.watchlist_data[grp][idx]
-        self.save_json_async(WATCHLIST_FILE, self.watchlist_data)
-        self.render_watchlist()
-        
     def delete_wl_group(self, grp):
         if messagebox.askyesno("Confirm", f"Delete group '{grp}'?"):
             del self.watchlist_data[grp]
@@ -1372,8 +1491,10 @@ class StockSifuUltimate(ctk.CTk):
             self.render_watchlist()
 
     def load_wl_item(self, item):
-        self.selected_wl_symbol = item.get('symbol')
-        self.render_watchlist() 
+        # 只有当选中的 ID 变化时才刷新列表UI，避免重复点击导致的无意义刷新
+        if self.selected_wl_symbol != item.get('symbol'):
+            self.selected_wl_symbol = item.get('symbol')
+            self.render_watchlist() 
         
         self.entries["symbol"].delete(0,"end"); self.entries["symbol"].insert(0, item["symbol"])
         self.entries["name"].delete(0,"end"); self.entries["name"].insert(0, item["name"])

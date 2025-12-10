@@ -198,6 +198,8 @@ LANG = {
         "sort_opts": ["市值 (高→低)", "市值 (低→高)", "盈亏 (高→低)", "代码 (A-Z)"],
         "group_opts": ["不分组", "按版块", "按地区"],
         "other_group": "其他",
+        "wl_welcome_title": "👋 欢迎使用!",
+        "wl_welcome_msg": "点击右侧的 [+ 新建] 按钮\n开始您的第一次估值分析吧！",
 
         "methods": {
             "ocf": {"name": "经营现金流贴现", "label": "经营现金流 (百万元)"},
@@ -232,8 +234,8 @@ LANG = {
         "iv_lbl": "Intrinsic Value Per Share", "mos_lbl": "Premium/Discount",
         "val_date": "Valuation Date (Y/M)",
         
-        "r_v_und": "💎 Deep Value", "r_und": "✅ Undervalued", "r_fair": "⚖️ Fair Value",
-        "r_over": "⚠️ Overvalued", "r_v_over": "⛔️ Bubble",
+        "r_v_und": "💎 Very Undervalued", "r_und": "✅ Undervalued", "r_fair": "⚖️ Fair Value",
+        "r_over": "⚠️ Overvalued", "r_v_over": "⛔️ Very Overvalued",
         
         "p_title": "Wealth Overview", 
         "card_net_worth": "Net Worth",
@@ -283,6 +285,8 @@ LANG = {
         "sort_opts": ["Value Desc", "Value Asc", "P&L Desc", "Ticker A-Z"],
         "group_opts": ["None", "By Sector", "By Country"],
         "other_group": "Other",
+        "wl_welcome_title": "👋 Welcome!",
+        "wl_welcome_msg": "Click the [+ New] button on the right\nto start your first valuation analysis!",
 
         "methods": {
             "ocf": {"name": "Discounted Cash Flow", "label": "Operating Cash Flow (Millions)"},
@@ -854,7 +858,7 @@ class StockSifuUltimate(ctk.CTk):
         in_head.pack(fill="x", padx=20, pady=15)
         ctk.CTkLabel(in_head, text=self.t["dcf_title"], font=FONTS["h2"], text_color=THEME["text_main"]).pack(side="left")
         ctk.CTkButton(in_head, text="💾", width=36, height=28, fg_color=THEME["input_bg"], text_color=THEME["text_main"], command=self.save_to_wl).pack(side="right", padx=(5,0))
-        ctk.CTkButton(in_head, text=self.t["btn_new_val"], width=36, height=28, fg_color=THEME["input_bg"], text_color=THEME["text_main"], command=self.reset_dcf_form).pack(side="right", padx=(5,0))
+        ctk.CTkButton(in_head, text=self.t["btn_new_val"], width=36, height=28, fg_color=THEME["input_bg"], text_color=THEME["text_main"], command=self.reset_dcf_form).pack(side="left", padx=(5,0))
 
         self.grp_combo = CleanCombo(in_head, values=list(self.watchlist_data.keys()), width=120)
         self.grp_combo.pack(side="right")
@@ -952,9 +956,10 @@ class StockSifuUltimate(ctk.CTk):
         self.wl_edit_mode = not self.wl_edit_mode
         # 更新按钮图标和颜色
         if self.wl_edit_mode:
-            self.btn_edit_wl.configure(text="✓", fg_color=THEME["primary"], text_color="white")
+            self.btn_edit_wl.configure(text="✓", fg_color=THEME["primary"], text_color="white",hover_color=THEME["primary_hover"])
         else:
-            self.btn_edit_wl.configure(text="✎", fg_color=THEME["input_bg"], text_color=THEME["text_main"])
+            self.btn_edit_wl.configure(text="✎", fg_color=THEME["input_bg"], 
+                                         text_color=THEME["primary"], hover_color=THEME["card_hover"])
         
         # 重新渲染列表以显示/隐藏控件
         self.render_watchlist()
@@ -989,49 +994,61 @@ class StockSifuUltimate(ctk.CTk):
         
         tickers_list = [x[0] for x in all_items]
         
-        # 安全检查：如果窗口已关闭，不继续执行
         if not self.winfo_exists(): return
-        
         if not tickers_list:
             self.after(0, self.reset_refresh_state)
             return
 
         updated_count = 0
         try:
-            # 优化：添加 threads=True 和 auto_adjust=False
-            data = yf.download(tickers_list, period="1d", group_by='ticker', threads=True, progress=False, auto_adjust=False)
+            # --- 核心修复: 适配新版 yfinance 的数据结构 ---
+            # 1. 移除已过时的 group_by='ticker' 参数。
+            # 2. 将周期设为 '2d' 以确保能取到最近的交易日数据。
+            data = yf.download(tickers_list, period="2d", threads=True, progress=False, auto_adjust=False)
             
-            for yf_sym, item in all_items:
-                try:
-                    price = 0.0
-                    if len(tickers_list) == 1:
-                        if not data.empty:
-                            price = float(data['Close'].iloc[-1])
-                    else:
-                        if yf_sym in data.columns.levels[0]:
-                            df = data[yf_sym]
-                            if not df.empty:
-                                price = float(df['Close'].iloc[-1])
-                    
-                    if price > 0:
-                        item["last_close"] = price
-                        iv = item.get("last_iv", 0)
-                        if iv > 0:
-                            gap = (price - iv) / iv
-                            item["last_gap"] = gap
-                        updated_count += 1
-                except:
-                    pass
+            if not data.empty:
+                close_prices = data.get('Close')
+                if close_prices is None:
+                    raise ValueError("Could not retrieve 'Close' prices.")
+
+                # 情况 1: 关注列表中只有一只股票
+                if len(tickers_list) == 1:
+                    if hasattr(close_prices, 'iloc') and not close_prices.dropna().empty:
+                        price = float(close_prices.dropna().iloc[-1])
+                        if price > 0:
+                            item = all_items[0][1] # 获取唯一的项目
+                            item["last_close"] = price
+                            iv = item.get("last_iv", 0)
+                            if iv > 0:
+                                gap = (price - iv) / iv
+                                item["last_gap"] = gap
+                            updated_count += 1
+                
+                # 情况 2: 关注列表中有多只股票
+                elif hasattr(close_prices, 'columns'):
+                    for yf_sym, item in all_items:
+                        try:
+                            if yf_sym in close_prices.columns:
+                                series = close_prices[yf_sym]
+                                if not series.dropna().empty:
+                                    price = float(series.dropna().iloc[-1])
+                                    if price > 0:
+                                        item["last_close"] = price
+                                        iv = item.get("last_iv", 0)
+                                        if iv > 0:
+                                            gap = (price - iv) / iv
+                                            item["last_gap"] = gap
+                                        updated_count += 1
+                        except Exception:
+                            # 忽略处理单个股票时的错误，继续更新其他股票
+                            pass
                     
         except Exception as e:
             print(f"Batch update failed: {e}")
 
         if not self.winfo_exists(): return
 
-        # 异步保存更新后的价格
         self.save_json_async(WATCHLIST_FILE, self.watchlist_data)
-        
-        # 使用 self.after 安全地在主线程更新 UI
         self.after(0, lambda: self.finish_refresh(updated_count))
 
     def finish_refresh(self, count):
@@ -1263,16 +1280,38 @@ class StockSifuUltimate(ctk.CTk):
         else:
             self.render_watchlist()
 
-    def delete_wl_item(self, grp, idx):
-        # 增加二次确认
-        item = self.watchlist_data[grp][idx]
-        if messagebox.askyesno("Confirm Delete", f"Remove '{item['symbol']}' from watchlist?"):
-            del self.watchlist_data[grp][idx]
-            self.save_json_async(WATCHLIST_FILE, self.watchlist_data)
-            self.render_watchlist()
+    def delete_wl_item(self, grp, item_to_delete):
+        # --- 核心修复: 改为通过 item 对象引用来删除，避免索引问题 ---
+        if messagebox.askyesno("Confirm Delete", f"Remove '{item_to_delete.get('symbol', 'N/A')}' from watchlist?"):
+            try:
+                # 使用 list.remove() 安全地移除对象
+                self.watchlist_data[grp].remove(item_to_delete)
+                self.save_json_async(WATCHLIST_FILE, self.watchlist_data)
+                # 成功删除数据后，立即刷新UI
+                self.render_watchlist()
+            except (ValueError, KeyError):
+                # 如果组或项不存在 (例如，在快速点击中被重复删除), 仅刷新UI以同步状态
+                print(f"Warning: Item to delete not found in group '{grp}'. Forcing a refresh.")
+                self.render_watchlist()
 
     def render_watchlist(self):
         for w in self.wl_scroll.winfo_children(): w.destroy()
+        
+        # --- 新增: 空白状态引导 ---
+        is_empty = not any(self.watchlist_data.values())
+        if is_empty:
+            welcome_frame = ctk.CTkFrame(self.wl_scroll, fg_color="transparent")
+            welcome_frame.pack(pady=20, padx=10, fill="x")
+            
+            ctk.CTkLabel(welcome_frame, text=self.t.get("wl_welcome_title", "👋 Welcome!"), 
+                         font=FONTS["h2"], text_color=THEME["text_main"]).pack(pady=(10, 15))
+                         
+            ctk.CTkLabel(welcome_frame, text=self.t.get("wl_welcome_msg", "Click [+ New] to start."),
+                         font=FONTS["body"], text_color=THEME["text_sub"], wraplength=280, justify="center").pack(pady=(0, 20))
+            
+            # 添加一个示意图标
+            ctk.CTkLabel(welcome_frame, text="📊", font=(UI_FONT, 60), text_color=THEME["border"]).pack()
+            return # 结束函数，不渲染列表
         
         self.group_row_widgets = {}
         # --- 核心优化: 创建一个从 symbol 到 widget 的直接映射 ---
@@ -1325,8 +1364,9 @@ class StockSifuUltimate(ctk.CTk):
                 pill.pack(side="left", padx=(8, 5))
                 
                 if self.wl_edit_mode:
+                    # --- 核心修复: lambda 捕捉 item 对象本身, 而不是不稳定的 idx ---
                     del_btn = ctk.CTkButton(row, text="×", width=24, height=24, fg_color="transparent", text_color=THEME["text_sub"],
-                                            hover_color=THEME["v_risk"], command=lambda g=group, i=idx: self.delete_wl_item(g, i))
+                                            hover_color=THEME["v_risk"], command=lambda g=group, item_to_del=item: self.delete_wl_item(g, item_to_del))
                     del_btn.pack(side="left", padx=(0, 5))
 
                 if self.wl_edit_mode:
@@ -1462,6 +1502,7 @@ class StockSifuUltimate(ctk.CTk):
         else: lst.append(data)
         
         self.save_json_async(WATCHLIST_FILE, self.watchlist_data)
+        self.render_watchlist()
         self.load_wl_item(data)
         
         # --- 修改：增加反馈 ---
@@ -1472,41 +1513,47 @@ class StockSifuUltimate(ctk.CTk):
     def reset_dcf_form(self):
         self.selected_wl_symbol = None
         
-        # 清空所有标准输入框
-        for k, entry in self.entries.items():
-            if isinstance(entry, CleanEntry):
-                entry.delete(0, "end")
-            elif isinstance(entry, CleanCombo):
-                # 下拉框重置为默认值
-                if k == "method":
-                    # --- 核心修改: 使用新的`methods`结构 ---
-                    default_key = self.t.get("default_method_key", "ocf")
-                    default_display_name = self.t["methods"].get(default_key, {}).get("name", "")
-                    entry.set(default_display_name)
-                else:
-                    entry.set("")
+        # 1. 清空所有输入框 (确保干净的状态)
+        for k, widget in self.entries.items():
+            if isinstance(widget, CleanEntry):
+                widget.delete(0, "end")
+        self.entry_cf.delete(0, "end")
 
-        # 重新设置特定字段的默认值
-        self.entries["curr_year"].insert(0, str(datetime.datetime.now().year))
+        # 2. 设置合理的默认值 (加载范例)
+        defaults = {
+            "symbol": "MSFT(example)", "name": "Microsoft", "cf": "147039",
+            "debt": "60556", "cash": "102005", "shares": "7434", "close": "483",
+            "g1": "15", "g2": "10", "g3": "5", "dr": "9",
+            "fin_curr": "USD", "list_curr": "USD", "rate": "1.0",
+        }
         
-        # 重置日期选择器
+        for key, value in defaults.items():
+            if key == "cf":
+                self.entry_cf.insert(0, value)
+            elif key in self.entries:
+                self.entries[key].insert(0, value)
+
+        # 3. 重置下拉框和日期选择器
+        default_method_key = self.t.get("default_method_key", "ocf")
+        default_display_name = self.t["methods"].get(default_method_key, {}).get("name", "")
+        self.entries["method"].set(default_display_name)
+        self.on_method_change(default_display_name)
+
         now = datetime.datetime.now()
+        self.entries["curr_year"].insert(0, str(now.year))
         self.dcf_year.set(str(now.year))
         self.dcf_month.set(f"{now.month:02d}")
         
-        # 重置自由现金流
-        self.entry_cf.delete(0, "end")
-        self.entry_cf.insert(0, "0")
-        
-        # 重置计算结果显示
+        # 4. 重置计算结果显示
         self.lbl_iv_big.configure(text="---", text_color=THEME["text_main"])
         self.lbl_mos_badge.configure(text="---", fg_color=THEME["input_bg"], text_color=THEME["text_main"])
         self.txt_log.delete("0.0", "end")
         
-        # 刷新列表以移除选中高亮
+        # 5. 更新UI状态
+        self.update_rate_hint()
         self.render_watchlist()
         
-        # --- 修改：增加反馈 ---
+        # 6. 显示反馈
         self.show_feedback(self.t["msg_new_ready"])
         # --------------------
 
@@ -1642,7 +1689,7 @@ class StockSifuUltimate(ctk.CTk):
         # Currency
         ctk.CTkLabel(ctrl_frame, text=self.t["p_disp_curr"], font=FONTS["sub_bold"], text_color=THEME["text_sub"]).pack(side="left")
         self.display_curr_var = ctk.StringVar(value="USD")
-        self.combo_display_curr = CleanCombo(ctrl_frame, values=["USD", "CNY", "HKD", "EUR", "JPY", "GBP", "SGD"], width=80, variable=self.display_curr_var, command=self.on_display_curr_change)
+        self.combo_display_curr = CleanCombo(ctrl_frame, values=["USD", "CNY", "HKD", "EUR", "JPY", "GBP", "AUD", "CAD", "SGD"], width=80, variable=self.display_curr_var, command=self.on_display_curr_change)
         self.combo_display_curr.pack(side="left", padx=(5, 15))
         
         # Global FX

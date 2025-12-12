@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="images/stocksifu_ad.jpeg " alt="StockSifu" width="1000"/>
+</p>
+
 # StockSifu - 股票内在价值计算器和投资组合跟踪器
 # StockSifu - Intrinsic Value Calculator & Portfolio Tracker
 
